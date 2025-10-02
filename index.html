@@ -9,8 +9,111 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
-   <link rel="stylesheet" href="css/style.css">
-</head>
+   <style>
+
+    body {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ color: black;
+ font-family: roboto;
+}
+
+.material-icons-outlined {
+  vertical-align: middle;
+  line-height: 1px;
+}
+
+.text-primary {
+  color: black;
+}
+
+.grid-container {
+  display:grid;
+  grid-template-columns: 260px 1fr 1fr 1fr;
+  grid-template-rows: 0.2fr 3fr;
+  grid-template-areas: 
+    "sidebar header header header"
+    "sidebar main main main";
+  height: 100vh;
+}
+
+.header {
+  grid-area: header;
+  height: 70px;
+  background-color: rgb(250, 248, 232);
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px 0 30px;
+  box-shadow: 0 6px 7px -4px rgba(0, 0, 0, 0.322);
+}
+
+.menu-icon {
+  display: none;
+}
+
+#sidebar {
+  grid-area: sidebar;
+  height: 90;
+  background-color: #50392a;
+  color: white;
+  overflow-y: auto;
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+}
+
+.sidebar-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 20px 20px;
+  margin-bottom: 30px;
+}
+
+.sidebar-title > span {
+  display: none;
+
+}
+
+.sidebar-brand {
+  margin-top: 15px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sidebar-list {
+  padding: 0;
+  margin-top: 15px;
+  list-style-type: none;
+}
+
+.sidebar-list-item {
+  padding: 20px 20px 20px 20px;
+}
+
+.sidebar-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  
+}
+
+.sidebar-responsive {
+  display: inline !important;
+  position: absolute;
+}
+
+.main-container {
+  grid-area: main;
+  background-color: ivory;
+  overflow-y: auto;
+  padding: 20px 20px;
+  color: black;
+}
+
+
+   </style>
 <body>
   <div class="grid-container">
      
@@ -96,6 +199,25 @@ home
 
   </div>
 
-  <script src="js/scripts.js"></script>
+  <script>
+
+      let sidebarOpen = false;
+  let sidebar = document.getElementById("sidebar");
+
+  function openSidebar() {
+    if (!sidebarOpen) {
+      sidebar.classList.add("sidebar-responsive");
+      sidebarOpen = true;
+    }
+  }
+
+  function closeSidebar() {
+    if (sidebarOpen) {
+      sidebar.classList.remove("sidebar-responsive");
+      sidebarOpen = false;
+    }
+  }
+
+  </script>
 </body>
 </html>
