@@ -1,0 +1,4620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster with Eyes</title>
+
+    <!-- Preload critical images -->
+<link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1S-cQW23ONxoAVwM0X99qYy6o8fKqFBnj">
+<link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1uhVdXmNWmdVZaAKcF7e21usugl2jUW8_">
+<link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1T5HFvef8hKf9jypfuPm6mkJMuvYp_LPt">
+<link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1gyLbB4UbPqhIw2vTAOLOVgZJmt2EXNL8">
+<link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1belFS5DhB5ooh3_i9sWlYFWA2-VggPC8">
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: white;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Roboto';
+            cursor: default;
+        }
+
+        /* Auth Page Styles */
+        .auth-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            z-index: 30000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .auth-page.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .auth-page.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+.auth-left {
+    flex: 0.6;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 40px 60px 40px 65px;
+    background: rgb(255, 255, 255);
+}
+
+        .auth-logo {
+            font-family: 'Roboto';
+            font-size: 80px;
+            font-weight: 900;
+            background: linear-gradient(
+                90deg,
+                #028BB3 0%,
+                #c4bfeb 25%,
+                #FFCCD1 50%,
+                #c4bfeb 75%,
+                #028BB3 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 8px;
+            margin-bottom: 40px;
+        }
+
+        .auth-form-container {
+    width: 100%;
+    max-width: 420px;
+    margin-right: 0px;
+}
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form h2 {
+            font-family: 'Roboto';
+            font-size: 28px;
+            font-weight: 700;
+            color: #028BB3;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .auth-input-group {
+            margin-bottom: 20px;
+        }
+
+        .auth-input-group label {
+            font-family: 'Roboto';
+            font-size: 13px;
+            font-weight: 600;
+            color: #028BB3;
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            font-family: 'Roboto';
+            font-size: 15px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .auth-input-group input:focus {
+            border-color: #028BB3;
+        }
+
+        .auth-error {
+            font-family: 'Roboto';
+            font-size: 12px;
+            color: #d32f2f;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            font-family: 'Roboto';
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
+            background: #028BB3;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .auth-button:hover {
+            background: #026d8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 139, 179, 0.3);
+        }
+
+        .auth-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-switch {
+            font-family: 'Roboto';
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .auth-switch a {
+            color: #028BB3;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .auth-switch a:hover {
+            opacity: 0.7;
+        }
+
+        .auth-right {
+    flex: 1.4;
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0e8f8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+}
+
+       .auth-right img {
+    max-width: 100%;
+    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 30% center;
+    border-radius: 0px;
+    box-shadow: none;
+}
+
+        /* Question Bubble Styles - CHAT BUBBLE DESIGN */
+        .question-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.192);
+            z-index: 25000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .question-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+.question-bubble {
+    position: fixed;
+    top: 10%;
+    right: 10%;
+    background: white;
+    border-radius: 55px;
+    padding: 35px;
+    width: 360px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 25001;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+/* Chat bubble pointer at BOTTOM LEFT pointing DOWN towards monster */
+.question-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    left: 30px;
+    width: 0;
+    height: 0;
+    border-left: 70px solid transparent;
+    border-right: 70px solid transparent;
+    border-top: 65px solid white;
+    z-index: -1;
+    transform: rotate(18deg);
+    transform-origin: top center;
+}
+
+        .question-bubble.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .question-bubble h3 {
+            font-family: 'Roboto';
+            font-size: 18px;
+            font-weight: 700;
+            color: #028BB3;
+            margin-bottom: 20px;
+        }
+
+        .question-bubble input {
+            width: 100%;
+            padding: 12px 14px;
+            font-family: 'Roboto';
+            font-size: 15px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            outline: none;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .question-bubble input:focus {
+            border-color: #028BB3;
+        }
+
+        .question-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .question-btn {
+            padding: 10px 20px;
+            font-family: 'Roboto';
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: white;
+            background: #028BB3;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .question-btn:hover {
+            background: #026d8a;
+            transform: translateY(-1px);
+        }
+
+        .question-btn.back {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .question-btn.back:hover {
+            background: #d0d0d0;
+        }
+
+        .confirmation-data {
+            font-family: 'Roboto';
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .confirmation-data strong {
+            color: #028BB3;
+            font-weight: 600;
+        }
+
+        /* Main content cursor */
+.main-content,
+.main-content * {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='56'><text y='60%' font-size='40'>🍗</text></svg>") 24 0, auto;
+}
+
+       body.intro-mode,
+body.intro-mode * {
+    cursor: default !important;
+}
+
+body.intro-mode .user-menu-button,
+body.intro-mode .user-menu-button *,
+body.intro-mode .user-menu-dropdown,
+body.intro-mode .user-menu-dropdown * {
+    cursor: pointer !important;
+}
+
+body.intro-mode .bottom-right-image,
+body.intro-mode .bottom-right-image * {
+    cursor: pointer !important;
+}
+
+.auth-page * {
+    cursor: default;
+}
+
+.auth-button,
+.auth-switch a {
+    cursor: pointer !important;
+}
+
+.auth-input-group input {
+    cursor: text !important;
+}
+
+       .title-text {
+            position: absolute;
+            top: 35px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .small-text {
+            font-family: 'Roboto';
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2.7px;
+            color: #1a1a1a;
+            margin-bottom: 1px;
+            margin-top: 7px;
+            opacity: 0;
+            animation: fadeInSmallText 1.5s ease-out 3.5s forwards, blinkText 1.5s ease-in-out 5s infinite;
+        }
+
+        @keyframes fadeInSmallText {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes blinkText {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+@keyframes slideUpMonsterJump {
+    0% {
+        transform: translateY(100vh);
+    }
+    40% {
+        transform: translateY(-65px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.iris.jumping-center {
+    transform: translate(0px, 0px)  scaleY(1.54) !important;
+}
+
+   .word-im {
+    font-family: 'Roboto';
+    font-size: 30px;
+    color: #028BB3;
+    font-weight: 770;
+    margin-top: 45px;
+    font-style: normal;
+    opacity: 0;
+    animation: fadeInFromLeftStatic 3.5s cubic-bezier(0.33, 0, 0.2, 1) 0.8s forwards;
+}
+
+@keyframes fadeInFromLeftStatic {
+    0% {
+        opacity: 0;
+        filter: blur(8px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+    }
+}
+
+      .word-chomper {
+    font-family: 'Roboto';
+    font-size: 110px;
+    font-weight: 720;
+    line-height: 2.7;
+    margin-top: -90px;
+    background: linear-gradient(
+         90deg,
+         #028BB3 0%,
+    #028BB3 10%,
+    #028BB3 20%,
+    #c4bfeb 35%,
+    #FFCCD1 50%,
+    #eeb1b7 65%,
+    #c4bfeb 80%,
+    #6bb6e8 90%,
+    #028BB3 100%,
+    #c4bfeb  110%,
+    #FFCCD1 125%,
+    #eeb1b7 140%,
+    #028BB3 150%,
+    #028BB3 160%,
+    #6bb6e8 170%,
+    #c4bfeb 185%,
+    #6bb6e8 200%
+            );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 8px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.021);
+    opacity: 0;
+    animation: fadeInFromLeftStatic 6s cubic-bezier(0.33, 0, 0.2, 1) 2.5s forwards, moveGradient 10s linear 6.5s infinite;
+}
+
+        @keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 300% center;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes moveGradient {
+    0% {
+        background-position: 0% center;
+    }
+    50% {
+        background-position: 100% center;
+    }
+    100% {
+        background-position: 0% center;
+    }
+}
+        
+        .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: -340px;
+    position: relative;
+    transform: translateY(100vh);
+   animation: slideUpMonsterJump 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 3.5s forwards;
+}
+
+        @keyframes slideUpMonster {
+            from {
+                transform: translateY(100vh);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .monst.jumping {
+            content: url('https://lh3.googleusercontent.com/d/1uhVdXmNWmdVZaAKcF7e21usugl2jUW8_');
+        }
+        
+        .monst {
+            max-width: 658px;
+            clip-path: inset(0 0 0 20px);
+            width: 100%;
+            height: auto;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='56'><text y='60%' font-size='40'>🍗</text></svg>") 24 0, auto;
+            transition: transform 0.1s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+        
+.eyes-container {
+    position: absolute;
+    display: flex;
+    gap: 80px;
+    z-index: 2;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translateY(-140px);
+    transition: none;
+}
+        
+        .eyes-container.wobble {
+            animation: wobbleEyes 3s cubic-bezier(0.36, 0, 0.66, 1) forwards;
+            transform-origin: center center;
+        }
+        
+        .eyes-container.shake {
+            animation: shakeEyes 0.8s ease-in-out forwards;
+            transform-origin: center center;
+        }
+
+        .eye-wrapper:first-child {
+            transform: rotate(5deg);
+        }
+
+        .eye-wrapper:last-child {
+            transform: rotate(-5deg);
+        }
+
+        .eye-wrapper {
+            position: relative;
+            width: 90px;
+            height: 105px;
+        }
+
+        .eye-socket {
+            position: absolute;
+            width: 90px;
+            height: 105px;
+            background: 
+                radial-gradient(
+                    ellipse at 50% 50%,
+                    #8ec5ea 0%,
+                    #6bb6e8 15%,
+                    #4a9fd5 35%,
+                    #3a8fc7 55%,
+                    #2e7ab8 75%,
+                    #1e5a8f 100%
+                );
+            border-radius: 50%;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.39),
+                inset 0 -5px 15px rgba(0, 0, 0, 0.336),
+                inset 0 5px 15px rgba(132, 150, 177, 0.116);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .eye-socket::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: 
+                radial-gradient(
+                    circle at 30% 25%,
+                    rgba(106, 182, 232, 0.4) 0%,
+                    transparent 40%
+                ),
+                repeating-radial-gradient(
+                    circle at 50% 50%,
+                    transparent 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 2px,
+                    transparent 4px
+                );
+            filter: blur(0.5px);
+        }
+
+        .eye-socket::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .eyeball {
+            position: absolute;
+            width: 85px;
+            height: 95px;
+            background: 
+                radial-gradient(
+                    circle at 50% 50%,
+                    #ffffff 0%,
+                    #fefefe 20%,
+                    #f9f9f9 50%,
+                    #ececec 100%
+                );
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scaleY(0.65);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.4),
+                inset 0 -5px 12px rgba(0, 0, 0, 0.08),
+                inset 0 5px 15px rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            overflow: hidden;
+            animation: blink 10s infinite;
+        }
+
+        .eyeball.closing {
+            animation: closeEyes 3s cubic-bezier(0.36, 0, 0.66, 1) forwards;
+        }
+
+        .eyeball.angry {
+            animation: angryEyes 0.8s ease-in-out forwards;
+        }
+
+        @media (max-width: 768px) {
+            .main-text {
+                font-size: 48px;
+            }
+            
+            .word-im {
+                font-size: 24px;
+            }
+            
+            .small-text {
+                font-size: 9px;
+            }
+        }
+
+        @keyframes blink {
+            0%, 98%, 100% {
+                transform: translate(-50%, -50%) scaleY(0.65);
+            }
+            99% {
+                transform: translate(-50%, -50%) scaleY(0.1);
+            }
+        }
+
+        @keyframes closeEyes {
+            0% { transform: translate(-50%, -50%) scaleY(0.65) rotate(0deg); }
+            20% { transform: translate(-50%, -50%) scaleY(0.4) rotate(0deg); }
+            35% { transform: translate(-50%, -50%) scaleY(0.1) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) scaleY(0) rotate(0deg); }
+            65% { transform: translate(-50%, -50%) scaleY(0) rotate(0deg); }
+            80% { transform: translate(-50%, -50%) scaleY(0.1) rotate(0deg); }
+            90% { transform: translate(-50%, -50%) scaleY(0.4) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) scaleY(0.65) rotate(0deg); }
+        }
+
+        @keyframes angryEyes {
+            0% { transform: translate(-50%, -50%) scaleY(0.65) rotate(0deg); }
+            20%, 80% { transform: translate(-50%, -50%) scaleY(0.45) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) scaleY(0.65) rotate(0deg); }
+        }
+
+        .eyeball::before {
+            content: '';
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: 
+                radial-gradient(
+                    circle at 50% 50%,
+                    rgba(255, 255, 255, 0.4) 0%,
+                    rgba(255, 255, 255, 0.25) 30%,
+                    rgba(255, 255, 255, 0.1) 60%,
+                    transparent 100%
+                );
+            border-radius: 50%;
+            top: 8%;
+            left: 12%;
+            filter: blur(2px);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .eyeball::after {
+            content: '';
+            position: absolute;
+            width: 11px;
+            height: 11px;
+            background: 
+                radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.35) 0%,
+                    rgba(255, 255, 255, 0.15) 50%,
+                    transparent 100%
+                );
+            border-radius: 50%;
+            top: 15%;
+            left: 25%;
+            filter: blur(1px);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .iris-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .iris {
+            width: 42px;
+            height: 42px;
+            background: 
+                radial-gradient(
+                    circle at 50% 50%,
+                    #8ec5ea 0%,
+                    #6bb6e8 15%,
+                    #4a9fd5 35%,
+                    #3a8fc7 55%,
+                    #2e7ab8 75%,
+                    #1e5a8f 100%
+                );
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s ease, left 0.3s ease;
+            box-shadow: 
+                0 5px 12px rgba(0, 0, 0, 0.5),
+                inset 0 -2px 8px rgba(0, 0, 0, 0.4),
+                inset 0 2px 8px rgba(142, 197, 234, 0.4);
+            transform-origin: center center;
+        }
+
+        .iris.intro-position {
+            transform: translate(8px, -8px) scaleY(1.54);
+        }
+
+        .eyeball.angry .iris {
+            transform: scaleY(1.54);
+        }
+
+        .iris::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-image: 
+                repeating-conic-gradient(
+                    from 0deg at 50% 50%,
+                    transparent 0deg,
+                    rgba(0, 0, 0, 0.15) 1deg,
+                    transparent 2deg,
+                    transparent 10deg
+                ),
+                repeating-radial-gradient(
+                    circle at 50% 50%,
+                    transparent 0px,
+                    rgba(0, 0, 0, 0.08) 1px,
+                    transparent 2px,
+                    transparent 8px
+                );
+            opacity: 0.7;
+            z-index: 1;
+        }
+
+        .iris::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(
+                    circle at 35% 35%,
+                    rgba(142, 197, 234, 0.5) 0%,
+                    rgba(107, 182, 232, 0.3) 40%,
+                    transparent 70%
+                );
+            top: 10%;
+            left: 10%;
+            z-index: 2;
+        }
+
+        .pupil {
+            width: 28px;
+            height: 28px;
+            background: 
+                radial-gradient(
+                    circle at 50% 50%,
+                    #2a2a2a 0%,
+                    #1a1a1a 30%,
+                    #000000 60%
+                );
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 
+                inset 0 2px 5px rgba(0, 0, 0, 1),
+                0 2px 5px rgba(0, 0, 0, 0.7);
+            z-index: 3;
+            transform-origin: center center;
+        }
+
+        .eyeball.angry .pupil {
+            transform: none;
+        }
+
+        .pupil::before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: 
+                radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.9) 0%,
+                    rgba(255, 255, 255, 0.5) 50%,
+                    transparent 100%
+                );
+            border-radius: 50%;
+            top: 3px;
+            left: 4px;
+            filter: blur(0.5px);
+            z-index: 4;
+        }
+
+        .pupil::after {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            top: 4px;
+            left: 6px;
+            filter: blur(0.5px);
+            z-index: 4;
+        }
+
+        .bottom-reflection {
+            position: absolute;
+            width: 80%;
+            height: 12px;
+            background: 
+                linear-gradient(
+                    to top,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 100%
+                );
+            border-radius: 50%;
+            bottom: 8%;
+            left: 10%;
+            filter: blur(3px);
+            pointer-events: none;
+            z-index: 19;
+        }
+
+        .mouth {
+            position: absolute;
+            width: 500px;
+            height: 300px;
+            background-image: url('https://lh3.googleusercontent.com/d/1T5HFvef8hKf9jypfuPm6mkJMuvYp_LPt');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 3;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-27px) scale(1);
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.596)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+            pointer-events: none;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        @keyframes mouthTalk {
+            0% {
+                background-image: url('https://lh3.googleusercontent.com/d/1UFNqD25OIR0YktNvbv2W3MkRE57nrog9');
+            }
+            33% {
+                background-image: url('https://lh3.googleusercontent.com/d/1eunEpSnmvwAaK9lWl76Z_husr11jWhvd');
+            }
+            66% {
+                background-image: url('https://lh3.googleusercontent.com/d/1UFNqD25OIR0YktNvbv2W3MkRE57nrog9');
+            }
+            100% {
+                background-image: url('https://lh3.googleusercontent.com/d/14LRlY3g28VoYFzeGDh_PEe3F3ULa2pyL');
+            }
+        }
+
+        .mouth.talking {
+            animation: mouthTalk 0.6s steps(1) infinite;
+        }
+
+        .mouth.question-loop {
+            animation: mouthTalk 0.6s steps(1) 5;
+        }
+        
+        .mouth-hitbox {
+            position: absolute;
+            width: 240px;
+            height: 120px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-27px);
+            z-index: 4;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='56'><text y='60%' font-size='40'>🍗</text></svg>") 24 0, auto;
+        }
+        
+        .mouth-hitbox:hover ~ .mouth {
+            background-image: url('https://lh3.googleusercontent.com/d/1gyLbB4UbPqhIw2vTAOLOVgZJmt2EXNL8');
+            transform: translate(-50%, -50%) translateY(-27px) scale(1.02);
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.623)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+        }
+
+        .mouth-hitbox.disabled {
+            pointer-events: none;
+            cursor: default;
+        }
+
+        .mouth.wobble-mouth {
+            animation: wobbleMouth 3s cubic-bezier(0.36, 0, 0.66, 1) forwards;
+        }
+
+        .mouth.shake-mouth {
+            animation: shakeMouth 0.8s ease-in-out forwards;
+        }
+
+        .mouth.jumping {
+            background-image: url('https://lh3.googleusercontent.com/d/1gyLbB4UbPqhIw2vTAOLOVgZJmt2EXNL8');
+            transform: translate(-50%, -50%) translateY(-27px) scale(1.01);
+        }
+
+        .wobble {
+            animation: wobble 3s cubic-bezier(0.36, 0, 0.66, 1) forwards;
+        }
+        
+        .shake {
+            animation: shake 0.8s ease-in-out forwards;
+        }
+        
+        @keyframes wobble {
+            0% { transform: translateX(0) rotate(0deg); }
+            10% { transform: translateX(-5px) rotate(-2deg); }  
+            20% { transform: translateX(4px) rotate(1.5deg); }      
+            30% { transform: translateX(-4px) rotate(-1.5deg); }    
+            40% { transform: translateX(3px) rotate(1deg); }       
+            50% { transform: translateX(-3px) rotate(-1deg); }     
+            60% { transform: translateX(2px) rotate(0.7deg); }       
+            70% { transform: translateX(-2px) rotate(-0.7deg); }     
+            80% { transform: translateX(1px) rotate(0.3deg); }       
+            90% { transform: translateX(-1px) rotate(-0.2deg); }   
+            95% { transform: translateX(0.5px) rotate(0.1deg); }     
+            100% { transform: translateX(0) rotate(0deg); }
+        }
+        
+      @keyframes wobbleEyes {
+    0% { transform: translate(-50%, -50%) translateY(-140px) rotate(0deg); }
+    10% { transform: translate(-50%, -50%) translateY(-140px) translateX(-5px) rotate(-2deg); }  
+    20% { transform: translate(-50%, -50%) translateY(-140px) translateX(4px) rotate(1.5deg); }      
+    30% { transform: translate(-50%, -50%) translateY(-140px) translateX(-4px) rotate(-1.5deg); }    
+    40% { transform: translate(-50%, -50%) translateY(-140px) translateX(3px) rotate(1deg); }       
+    50% { transform: translate(-50%, -50%) translateY(-140px) translateX(-3px) rotate(-1deg); }     
+    60% { transform: translate(-50%, -50%) translateY(-140px) translateX(2px) rotate(0.7deg); }       
+    70% { transform: translate(-50%, -50%) translateY(-140px) translateX(-2px) rotate(-0.7deg); }     
+    80% { transform: translate(-50%, -50%) translateY(-140px) translateX(1px) rotate(0.3deg); }       
+    90% { transform: translate(-50%, -50%) translateY(-140px) translateX(-1px) rotate(-0.2deg); }   
+    95% { transform: translate(-50%, -50%) translateY(-140px) translateX(0.5px) rotate(0.1deg); }     
+    100% { transform: translate(-50%, -50%) translateY(-140px) rotate(0deg); }
+}
+
+        @keyframes wobbleMouth {
+            0% { transform: translate(-50%, -50%) translateY(-27px) scale(1) rotate(0deg); }
+            10% { transform: translate(-50%, -50%) translateY(-27px) scale(1.01) translateX(-5px) rotate(-2deg); }  
+            20% { transform: translate(-50%, -50%) translateY(-27px) scale(1.01) translateX(4px) rotate(1.5deg); }      
+            30% { transform: translate(-50%, -50%) translateY(-27px) scale(1.01) translateX(-4px) rotate(-1.5deg); }    
+            40% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(3px) rotate(1deg); }       
+            50% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(-3px) rotate(-1deg); }     
+            60% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(2px) rotate(0.7deg); }       
+            70% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(-2px) rotate(-0.7deg); }     
+            80% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(1px) rotate(0.3deg); }       
+            90% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(-1px) rotate(-0.2deg); }   
+            95% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(0.5px) rotate(0.1deg); }     
+            100% { transform: translate(-50%, -50%) translateY(-27px) scale(1) rotate(0deg); }
+        }
+        
+       @keyframes shakeEyes {
+    0%, 100% { transform: translate(-50%, -50%) translateY(-140px); }
+    10% { transform: translate(-50%, -50%) translateY(-140px) translateX(-5px); }
+    20% { transform: translate(-50%, -50%) translateY(-140px) translateX(5px); }
+    30% { transform: translate(-50%, -50%) translateY(-140px) translateX(-5px); }
+    40% { transform: translate(-50%, -50%) translateY(-140px) translateX(5px); }
+    50% { transform: translate(-50%, -50%) translateY(-140px) translateX(-4px); }
+    60% { transform: translate(-50%, -50%) translateY(-140px) translateX(4px); }
+    70% { transform: translate(-50%, -50%) translateY(-140px) translateX(-2px); }
+    80% { transform: translate(-50%, -50%) translateY(-140px) translateX(2px); }
+    90% { transform: translate(-50%, -50%) translateY(-140px) translateX(-1px); }
+    95% { transform: translate(-50%, -50%) translateY(-140px) translateX(1px); }
+}
+
+        @keyframes shakeMouth {
+            0%, 100% { transform: translate(-50%, -50%) translateY(-27px) scale(1); }
+            10% { transform: translate(-50%, -50%) translateY(-27px) scale(1.02) translateX(-5px); }
+            20% { transform: translate(-50%, -50%) translateY(-27px) scale(1.02) translateX(5px); }
+            30% { transform: translate(-50%, -50%) translateY(-27px) scale(1.02) translateX(-5px); }
+            40% { transform: translate(-50%, -50%) translateY(-27px) scale(1.02) translateX(5px); }
+            50% { transform: translate(-50%, -50%) translateY(-27px) scale(1.01) translateX(-4px); }
+            60% { transform: translate(-50%, -50%) translateY(-27px) scale(1.01) translateX(4px); }
+            70% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(-2px); }
+            80% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(2px); }
+            90% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(-1px); }
+            95% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(1px); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-4px); }
+            60% { transform: translateX(4px); }
+            70% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+            90% { transform: translateX(-1px); }
+            95% { transform: translateX(1px); }
+        }
+
+        /* Idle look around animation */
+@keyframes idleLookEyes {
+    0% { transform: translate(-50%, -50%) translateY(-140px); }
+    25% { transform: translate(-50%, -50%) translateY(-140px) translateX(-15px); }
+    50% { transform: translate(-50%, -50%) translateY(-140px) translateX(15px); }
+    75% { transform: translate(-50%, -50%) translateY(-140px); }
+    100% { transform: translate(-50%, -50%) translateY(-140px); }
+}
+
+@keyframes idleLookMouth {
+    0% { transform: translate(-50%, -50%) translateY(-27px) scale(1); }
+    25% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(-15px); }
+    50% { transform: translate(-50%, -50%) translateY(-27px) scale(1) translateX(15px); }
+    75% { transform: translate(-50%, -50%) translateY(-27px) scale(1); }
+    100% { transform: translate(-50%, -50%) translateY(-27px) scale(1); }
+}
+
+@keyframes idleLookIris {
+    0% { transform: translate(var(--start-x, 0px), var(--start-y, 0px)) scaleY(1.54); }
+    25% { transform: translate(3px, 0px) scaleY(1.54); }
+    50% { transform: translate(-3px, 0px) scaleY(1.54); }
+    75% { transform: translate(0px, 0px) scaleY(1.54); }
+    100% { transform: translate(0px, 0px) scaleY(1.54); }
+}
+
+.eyes-container.idle-look {
+    animation: idleLookEyes 4.5s ease-in-out forwards;
+}
+
+.mouth.idle-look {
+    animation: idleLookMouth 4.5s ease-in-out forwards;
+}
+
+.iris.idle-look {
+    animation: idleLookIris 4.5s ease-in-out forwards;
+}
+
+        .file-input {
+            display: none;
+        }
+
+        @keyframes fadeOutText {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .title-text.fade-out {
+            animation: fadeOutText 0.8s ease-out forwards;
+        }
+
+        .greeting-container {
+            position: absolute;
+            top: 92px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
+        }
+
+        .greeting-container.show {
+            display: block !important;
+        }
+
+        .greeting-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #000000;
+            letter-spacing: 0px;
+            word-spacing: -7px;
+        }
+
+        .greeting-hi {
+            color: #028BB3 !important;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+     .greeting-name {
+    font-weight: 650;
+    letter-spacing: 1px;
+    margin-top: -10px;
+}
+
+.greeting-name span {
+    display: inline-block;
+    opacity: 0;
+    animation: fadeInLetter 0.3s ease-out forwards;
+    background: linear-gradient(
+        90deg,
+        #4ab4d4 0%,
+        #74c4dd 25%,
+        #FFCCD1 50%,
+        #fbccff 75%,
+        #FFCCD1 100%
+    );
+    background-size: 600% 100%;
+    background-position: calc(var(--index) * 100% / var(--total)) center;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+        .greeting-question {
+            font-family: 'Roboto', sans-serif;
+            font-size: 37px;
+            font-weight: 700;
+            color: #028BB3 !important;
+            letter-spacing: 0.5px;
+            margin-top: -10px;
+        }
+
+        .greeting-text span span,
+        .greeting-question span {
+            opacity: 0;
+            display: inline-block;
+            animation: fadeInLetter 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInLetter {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .greeting-hi,
+        .greeting-name,
+        .greeting-question {
+            visibility: hidden;
+        }
+
+        .greeting-container.show .greeting-hi,
+        .greeting-container.show .greeting-name,
+        .greeting-container.show .greeting-question {
+            visibility: visible;
+        }
+
+        .greeting-text span span,
+        .greeting-question span {
+            opacity: 0;
+            display: inline-block;
+            animation: fadeInLetter 0.3s ease-out forwards;
+        }
+
+        .chomping-container {
+            position: absolute;
+            top: 92px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
+        }
+
+        .chomping-container.show {
+            display: block !important;
+        }
+
+        .chomping-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: #ded6fa;
+            letter-spacing: 2px;
+        }
+
+        .chomping-text span {
+            display: inline-block;
+            opacity: 0;
+            animation: letterWave 1.5s ease-in-out infinite;
+        }
+
+        @keyframes letterWave {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-10px);
+                opacity: 0.7;
+            }
+        }
+
+        .result-container {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block !important;
+        }
+
+        .result-calories {
+            font-family: 'Roboto', sans-serif;
+            font-size: 57px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .result-calories span {
+            display: inline-block;
+            opacity: 0;
+            background: linear-gradient(
+                90deg,
+                #d3cdf3 0%,
+                #cfc1f5 30%,
+                #ffd8db 70%,
+                #FFCCD1 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-position: calc((var(--index) / var(--total)) * 100%) 0;
+        }
+
+        .result-suggestion {
+            font-family: 'Roboto', sans-serif;
+            font-size: 27px;
+            font-weight: 700;
+            color: #028BB3;
+            letter-spacing: 0.5px;
+            margin-top: -10px;
+        }
+
+        .result-suggestion span {
+            display: inline-block;
+            opacity: 0;
+        }
+
+        @keyframes mouthUpload {
+            0%, 100% {
+                background-image: url('https://lh3.googleusercontent.com/d/1UFNqD25OIR0YktNvbv2W3MkRE57nrog9');
+            }
+            50% {
+                background-image: url('https://lh3.googleusercontent.com/d/1ADJSoPrUfk1uq98AbCG0oKJ6WFCK9nLo');
+            }
+        }
+
+        .mouth.uploading {
+            animation: mouthUpload 0.4s steps(1) infinite;
+        }
+
+        .eyeball.uploading {
+            animation: uploadEyes 0.3s ease-out forwards;
+        }
+
+        .monst.jello {
+            animation: jelloSquash 1.2s ease-in-out forwards;
+        }
+
+        .eyes-container.jello {
+            animation: jelloSquashEyes 1.2s ease-in-out forwards;
+        }
+
+        .mouth.jello {
+            animation: jelloSquashMouth 1.2s ease-in-out forwards;
+        }
+
+        @keyframes uploadEyes {
+            0% {
+                transform: translate(-50%, -50%) scaleY(0.65);
+            }
+            100% {
+                transform: translate(-50%, -50%) scaleY(0);
+            }
+        }
+
+        @keyframes jelloSquash {
+            0% {
+                transform: translateY(0) scaleX(1) scaleY(1);
+            }
+            25% {
+                transform: translateY(0) scaleX(1.015) scaleY(0.985);
+            }
+            50% {
+                transform: translateY(0) scaleX(0.985) scaleY(1.015);
+            }
+            75% {
+                transform: translateY(0) scaleX(1.008) scaleY(0.992);
+            }
+            100% {
+                transform: translateY(0) scaleX(1) scaleY(1);
+            }
+        }
+
+        @keyframes jelloSquashEyes {
+            0% {
+                transform: translate(-50%, -50%) translateY(-150px) scaleX(1) scaleY(1);
+            }
+            25% {
+                transform: translate(-50%, -50%) translateY(-150px) scaleX(1.015) scaleY(0.985);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-150px) scaleX(0.985) scaleY(1.015);
+            }
+            75% {
+                transform: translate(-50%, -50%) translateY(-150px) scaleX(1.008) scaleY(0.992);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateY(-150px) scaleX(1) scaleY(1);
+            }
+        }
+
+        @keyframes jelloSquashMouth {
+            0% {
+                transform: translate(-50%, -50%) translateY(-27px) scale(1) scaleX(1) scaleY(1);
+            }
+            25% {
+                transform: translate(-50%, -50%) translateY(-27px) scale(1) scaleX(1.015) scaleY(0.985);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-27px) scale(1) scaleX(0.985) scaleY(1.015);
+            }
+            75% {
+                transform: translate(-50%, -50%) translateY(-27px) scale(1) scaleX(1.008) scaleY(0.992);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateY(-27px) scale(1) scaleX(1) scaleY(1);
+            }
+        }
+
+        .crumb {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #b17a4e 0%, #ffb77c 50%, #a5681d 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .crumb.animate {
+            animation: crumbFall var(--fall-duration) ease-out forwards;
+        }
+
+        @keyframes crumbFall {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translate(var(--fall-x), calc(var(--fall-y) * 0.5)) rotate(180deg) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--fall-x), var(--fall-y)) rotate(360deg) scale(0.3);
+            }
+        }
+
+        .calorie-tracker {
+            position: absolute;
+            top: 19px;
+            left: 30px;
+            z-index: 9999;
+            font-family: 'Roboto', sans-serif;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .calorie-tracker.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tracker-date {
+            font-size: 18px;
+            font-weight: 810;
+            letter-spacing: 2.7px;
+            color: #999;
+            margin-bottom: -23px;
+            text-transform: uppercase;
+        }
+
+        .tracker-calories {
+            font-size: 14px;
+            font-weight: 710;
+            color: #028BB3;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            text-align: right;
+            padding-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .tracker-calories-current {
+            color: #028BB3;
+            font-size: 14px;
+            font-weight: 710;
+        }
+
+        .tracker-calories-target {
+            cursor: pointer;
+            border-bottom: 1px dashed transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .tracker-calories-target:hover {
+            border-bottom-color: #028BB3;
+        }
+
+        .tracker-edit-icon {
+            font-size: 20px;
+            height: 25px;
+            color: #028BB3;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .tracker-edit-icon:hover {
+            opacity: 0.7;
+        }
+
+        .tracker-bar-container {
+            width: 460px;
+            height: 21px;
+            background: #e8e8e8;
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tracker-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(
+                90deg,
+                #028bb3 0%,
+                #028bb3 30%,
+                #1c9ac0 70%,
+                #ddd4d5 100%
+            );
+            border-radius: 100px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes fadeOutLetter {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.192);
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 19px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: #028bb3;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10001;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.027);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            pointer-events: none;
+            padding: 0;
+        }
+
+        .sidebar-toggle.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-toggle.moved {
+            right: 430px;
+        }
+
+        .sidebar-toggle:hover {
+            background: #026d8a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.027);
+        }
+
+        .sidebar-toggle .material-symbols-outlined {
+            font-size: 24px;
+            color: rgb(255, 255, 255);
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            margin-left: 4px;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            transition: right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow: hidden;
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 25px 20px 25px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            gap: 25px;
+            width: 100%;  
+            justify-content: space-around;
+        }
+
+        .sidebar-tab {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #028BB3;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 0 8px 0;
+            transition: color 0.3s ease;
+            text-transform: uppercase;
+            position: relative;
+            border-bottom: 2px solid transparent;
+        }
+
+        .sidebar-tab.active {
+            color: #028BB3;
+            border-bottom: 2px solid #028BB3;
+        }
+
+        .sidebar-tab:hover {
+            color: #028BB3;
+        }
+
+        .sidebar-content {
+            height: calc(100vh - 81px);
+            overflow-y: auto;
+            padding: 20px 25px;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        .sidebar-page {
+            display: none;
+        }
+
+        .sidebar-page.active {
+            display: block;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            will-change: transform;
+        }
+
+        .food-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .food-item-image {
+            width: 180px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 0px;
+            flex-shrink: 0;
+            display: block;
+            background-color: #d0d0d0;
+            min-width: 140px;
+            min-height: 70px;
+        }
+
+        .food-item-image[alt=""]::before,
+        .food-item-image[alt=""]::after {
+            display: none !important;
+        }
+
+        .food-item-image[src=""],
+        .food-item-image:not([src]) {
+            content: '';
+        }
+
+        .food-item-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            flex: 1;
+            text-align: right;
+        }
+
+        .food-item-date {
+            font-family: 'Roboto', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #028BB3;
+            text-transform: uppercase;
+        }
+
+        .food-item-calories {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+
+        .food-item-calories-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #028BB3;
+        }
+
+        .food-item-calories-text {
+            font-size: 10px;
+            font-weight: 600;
+            color: #028BB3;
+        }
+
+        .digest-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .digest-item:last-child {
+            border-bottom: none;
+        }
+
+        .digest-date {
+            font-family: 'Roboto', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #028BB3;
+        }
+
+        .digest-calories {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .digest-calories-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: #028BB3;
+        }
+
+        .digest-calories-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #028BB3;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #028BB3;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+        }
+
+        .bottom-buttons {
+            position: fixed;
+            bottom: 17px;
+            left: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .bottom-buttons.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .bottom-button {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
+            background: #028bb3;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+        }
+
+        .bottom-button:hover {
+            background: #026d8a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            display: none;
+            align-items: flex-end;
+            justify-content: flex-start;
+            z-index: 20000;
+            pointer-events: none;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            pointer-events: auto;
+        }
+
+        .tutorial-modal {
+            background: white;
+            border-radius: 10px;
+            width: 340px;
+            height: 340px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-left: 30px;
+            margin-bottom: 90px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: auto;
+        }
+
+        .modal-overlay.show .tutorial-modal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tutorial-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 26px;
+            height: 26px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-close:hover {
+            background: #d0d0d0;
+        }
+
+        .tutorial-close .material-symbols-outlined {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .tutorial-image-container {
+            width: 100%;
+            height: 180px;
+            background: #f5f5f5;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .tutorial-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .tutorial-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .tutorial-nav-button {
+            width: 32px;
+            height: 32px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-nav-button .material-symbols-outlined {
+            font-size: 20px;
+            color: #666;
+        }
+
+        .tutorial-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .tutorial-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d0d0d0;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-dot.active {
+            background: #028BB3;
+            width: 18px;
+            border-radius: 3px;
+        }
+
+        .tutorial-text-container {
+            flex: 1;
+            padding: 10px 20px 15px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tutorial-text-container h2 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #028BB3;
+            margin-bottom: 6px;
+            margin-top: 0;
+        }
+
+        .tutorial-text-container p {
+            font-family: 'Roboto', sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #666;
+            margin: 0;
+        }
+
+        .privacy-modal {
+            background: white;
+            border-radius: 10px;
+            width: 340px;
+            max-height: 380px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-left: 30px;
+            margin-bottom: 90px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: auto;
+        }
+
+        .modal-overlay.show .privacy-modal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .privacy-header {
+            padding: 15px 20px 12px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            position: relative;
+        }
+
+        .privacy-header h2 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #028BB3;
+        }
+
+        .privacy-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 26px;
+            height: 26px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .privacy-close:hover {
+            background: #d0d0d0;
+        }
+
+        .privacy-close .material-symbols-outlined {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .privacy-content {
+            padding: 15px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .privacy-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .privacy-content::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+
+        .privacy-content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .privacy-content::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        .privacy-content h3 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #028BB3;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .privacy-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .privacy-content p {
+            font-family: 'Roboto', sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .main-content.show {
+            display: block;
+        }
+        
+.bottom-right-image {
+    position: fixed;
+    bottom: -53px;
+    right: 10px;
+    width: 250px;
+    height: auto;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    pointer-events: auto;
+    animation: fadeInBottomImage 2s ease-out 2.5s forwards;
+    cursor: pointer;
+}
+
+@keyframes fadeInBottomImage {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.7;
+    }
+}
+
+.bottom-right-image:hover {
+    opacity: 1;
+}
+
+body.intro-mode .bottom-right-image {
+    display: block;
+}
+
+.bottom-right-image.show {
+    display: block;
+}
+
+.user-menu-button {
+    position: fixed;
+    bottom: 14px;
+    left: 26px;
+    width: 44px;
+    height: 44px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer !important;
+    z-index: 9999;
+    transition: all 1.5s ease;
+    opacity: 0;
+}
+
+body.intro-mode .user-menu-button {
+    display: flex;
+    animation: fadeInUserMenu 2s ease-out 2.5s forwards;
+    pointer-events: auto;
+}
+
+@keyframes fadeInUserMenu {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+body.intro-mode .user-menu-button:hover {
+    opacity: 1;
+}
+
+.user-menu-button:hover {
+    background: #d0d0d0;
+}
+
+.user-menu-button .material-symbols-outlined {
+    font-size: 24px;
+    color: #666;
+}
+
+.user-menu-dropdown {
+    position: fixed;
+    bottom: 67px;
+    left: 27px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    min-width: 200px;
+}
+
+.user-menu-dropdown.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.user-menu-username {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #8d8d8d;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: #a3a3a3;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.user-menu-item:hover {
+    background: #f5f5f5;
+}
+
+.user-menu-item:first-of-type {
+    border-radius: 0;
+}
+
+.user-menu-item:last-of-type {
+    border-radius: 0 0 8px 8px;
+}
+
+.user-menu-item .material-symbols-outlined {
+    font-size: 20px;
+    color: #bdbdbd;
+}
+
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 30000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.confirmation-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.confirmation-box {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.confirmation-box h3 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #028BB3;
+    margin-bottom: 15px;
+}
+
+.confirmation-box p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.confirmation-btn {
+    padding: 12px 30px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.confirmation-btn.confirm {
+    background: #028BB3;
+    color: white;
+}
+
+.confirmation-btn.confirm:hover {
+    background: #026d8a;
+}
+
+.confirmation-btn.cancel {
+    background: #e0e0e0;
+    color: #666;
+}
+
+.confirmation-btn.cancel:hover {
+    background: #d0d0d0;
+}
+
+.confirmation-modal {
+    cursor: default !important;
+}
+
+.confirmation-modal *:not(.confirmation-btn):not(.confirmation-btn *) {
+    cursor: default !important;
+}
+
+.confirmation-btn {
+    cursor: pointer !important;
+}
+
+.confirmation-btn * {
+    cursor: pointer !important;
+}
+
+/* Fix chicken cursor on monster */
+.main-content .mouth-hitbox,
+.main-content .monst {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='56'><text y='60%' font-size='40'>🍗</text></svg>") 24 0, auto !important;
+}
+
+/* Chicken cursor EVERYWHERE on main page */
+body:not(.intro-mode) {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='56'><text y='60%' font-size='40'>🍗</text></svg>") 24 0, auto !important;
+}
+
+body:not(.intro-mode) * {
+    cursor: inherit !important;
+}
+
+/* Keep pointer for clickable things */
+body:not(.intro-mode) button,
+body:not(.intro-mode) a,
+body:not(.intro-mode) .sidebar-toggle,
+body:not(.intro-mode) .sidebar-tab,
+body:not(.intro-mode) .bottom-button,
+body:not(.intro-mode) .tracker-edit-icon,
+body:not(.intro-mode) .tracker-calories-target,
+body:not(.intro-mode) .confirmation-btn {
+    cursor: pointer !important;
+}
+
+/* Keep text cursor for inputs */
+body:not(.intro-mode) input[type="text"],
+body:not(.intro-mode) input[type="password"],
+body:not(.intro-mode) textarea {
+    cursor: text !important;
+}
+
+/* Pointer cursor for bottom right image */
+.bottom-right-image {
+    cursor: pointer !important;
+}
+
+/* FORCE pointer cursor for bottom right image */
+body:not(.intro-mode) .bottom-right-image,
+body:not(.intro-mode) .bottom-right-image * {
+    cursor: pointer !important;
+}
+
+body.intro-mode .bottom-right-image,
+body.intro-mode .bottom-right-image * {
+    cursor: pointer !important;
+}
+
+/* FORCE pointer cursor for confirmation modal buttons */
+.confirmation-btn,
+.confirmation-btn *,
+.confirmation-btn:hover {
+    cursor: pointer !important;
+}
+
+.confirmation-modal button {
+    cursor: pointer !important;
+}
+    </style>
+
+    <script>
+    window.addEventListener('load', function() {
+        const imagesToPreload = [
+            'https://lh3.googleusercontent.com/d/1S-cQW23ONxoAVwM0X99qYy6o8fKqFBnj',
+            'https://lh3.googleusercontent.com/d/1uhVdXmNWmdVZaAKcF7e21usugl2jUW8_',
+            'https://lh3.googleusercontent.com/d/1T5HFvef8hKf9jypfuPm6mkJMuvYp_LPt',
+            'https://lh3.googleusercontent.com/d/1gyLbB4UbPqhIw2vTAOLOVgZJmt2EXNL8',
+            'https://lh3.googleusercontent.com/d/1UFNqD25OIR0YktNvbv2W3MkRE57nrog9',
+            'https://lh3.googleusercontent.com/d/1eunEpSnmvwAaK9lWl76Z_husr11jWhvd',
+            'https://lh3.googleusercontent.com/d/14LRlY3g28VoYFzeGDh_PEe3F3ULa2pyL',
+            'https://lh3.googleusercontent.com/d/1belFS5DhB5ooh3_i9sWlYFWA2-VggPC8',
+            'https://lh3.googleusercontent.com/d/1ADJSoPrUfk1uq98AbCG0oKJ6WFCK9nLo'
+        ];
+        
+        imagesToPreload.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+    });
+</script>
+
+</head>
+<body>
+    <div class="auth-page" id="authPage">
+        <div class="auth-left">
+            <div class="auth-logo">CHOMPER</div>
+            
+            <div class="auth-form-container">
+                <div class="auth-form active" id="createAccountForm">
+                    <h2>Create Account</h2>
+                    <div class="auth-input-group">
+                        <label for="createUsername">Username</label>
+                        <input type="text" id="createUsername" placeholder="Choose a username" autocomplete="off">
+                        <div class="auth-error" id="createUsernameError">Username already taken</div>
+                    </div>
+                    <div class="auth-input-group">
+                        <label for="createPassword">Password</label>
+                        <input type="password" id="createPassword" placeholder="Create a password" autocomplete="new-password">
+                    </div>
+                    <div class="auth-input-group">
+                        <label for="createPasswordConfirm">Confirm Password</label>
+                        <input type="password" id="createPasswordConfirm" placeholder="Confirm your password" autocomplete="new-password">
+                        <div class="auth-error" id="createPasswordError">Passwords do not match</div>
+                    </div>
+                    <button class="auth-button" id="createAccountBtn">Create Account</button>
+                    <div class="auth-switch">
+                        Already have an account? <a id="switchToLogin">Login</a>
+                    </div>
+                </div>
+
+                <div class="auth-form" id="loginForm">
+                    <h2>Login</h2>
+                    <div class="auth-input-group">
+                        <label for="loginUsername">Username</label>
+                        <input type="text" id="loginUsername" placeholder="Enter your username" autocomplete="off">
+                    </div>
+                    <div class="auth-input-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+                        <div class="auth-error" id="loginError">Invalid username or password</div>
+                    </div>
+                    <button class="auth-button" id="loginBtn">Login</button>
+                    <div class="auth-switch">
+                        Don't have an account? <a id="switchToCreate">Create Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="auth-right">
+            <img src="https://lh3.googleusercontent.com/d/1TNXeFTAjxc461Xa4Pbaop-rOOTavCrwZ" alt="Chomper">
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="question-overlay" id="questionOverlay"></div>
+        <div class="question-bubble" id="questionBubble">
+            <h3 id="questionTitle">What's your name?</h3>
+            <input type="text" id="questionInput" placeholder="Enter your name">
+            <div class="question-buttons">
+                <button class="question-btn back" id="questionBack" style="display:none;">Back</button>
+                <button class="question-btn" id="questionNext">Next</button>
+            </div>
+        </div>
+
+        <div class="title-text">
+            <div class="small-text">CLICK ANYWHERE TO START</div>
+            <div class="word-im">i<i>'</i>m</div>
+            <div class="word-chomper">CHOMPER</div>
+        </div>
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="calorie-tracker" id="calorieTracker">
+            <div class="tracker-date" id="trackerDate">TUE, OCTOBER 29</div>
+            <div class="tracker-calories">
+                <span class="tracker-calories-current" id="trackerCaloriesCurrent">0</span> / <span class="tracker-calories-target" id="trackerCaloriesTarget">2000</span> Cal
+                <span class="material-symbols-outlined tracker-edit-icon" id="trackerEditIcon">stylus</span>
+            </div>
+            <div class="tracker-bar-container">
+                <div class="tracker-bar-fill" id="trackerBarFill"></div>
+            </div>
+        </div>
+
+        <div class="bottom-buttons" id="bottomButtons">
+            <button class="bottom-button" id="tutorialButton">Tutorial</button>
+            <button class="bottom-button" id="privacyButton">Privacy Policy</button>
+        </div>
+
+        <div class="confirmation-modal" id="confirmationModal">
+            <div class="confirmation-box">
+                <h3 id="confirmationTitle">Confirm Action</h3>
+                <p id="confirmationMessage">Are you sure you want to proceed?</p>
+                <div class="confirmation-buttons">
+                    <button class="confirmation-btn cancel" id="confirmationCancel">Cancel</button>
+                    <button class="confirmation-btn confirm" id="confirmationConfirm">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="tutorialModal">
+            <div class="tutorial-modal">
+                <button class="tutorial-close" id="tutorialClose">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+                
+                <div class="tutorial-image-container" id="tutorialImageContainer">
+                </div>
+                
+                <div class="tutorial-nav">
+                    <button class="tutorial-nav-button" id="tutorialPrev">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    
+                    <div class="tutorial-dots" id="tutorialDots">
+                        <div class="tutorial-dot active"></div>
+                        <div class="tutorial-dot"></div>
+                        <div class="tutorial-dot"></div>
+                        <div class="tutorial-dot"></div>
+                    </div>
+                    
+                    <button class="tutorial-nav-button" id="tutorialNext">
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+                
+                <div class="tutorial-text-container" id="tutorialTextContainer">
+                    <h2>Page 1 Title</h2>
+                    <p>Add your tutorial content here. You can easily edit this text to provide instructions and information for your users.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="privacyModal">
+            <div class="privacy-modal">
+                <div class="privacy-header">
+                    <h2>Privacy Policy</h2>
+                    <button class="privacy-close" id="privacyClose">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                
+                <div class="privacy-content" id="privacyContent">
+                    <h3>1. Introduction</h3>
+                    <p>Welcome to Evensure. Your privacy is important to us, and we are committed to protecting your personal information. This Privacy Policy explains how we collect, use, store, and protect your personal data in accordance with applicable privacy and data protection laws of Indonesia. By using our website and services, you agree to the terms of this Privacy Policy.</p>
+                    
+                    <h3>2. Who We Are</h3>
+                    <p>Evensure is the data controller responsible for your personal information. We determine how and why your data is collected, processed, and stored.</p>
+                    
+                    <h3>3. Information We Collect</h3>
+                    <p>We may collect the following types of personal information:
+                        - Identity Data (such as name, date of birth, identification documents)
+                        - Contact Data (such as email address, phone number, mailing address)
+                        - Financial Data (such as payment details)
+                        - Transaction Data (such as records of services purchased or used)
+                        - Technical Data (such as IP address, browser type, device information, and usage data)</p>
+                    
+                    <h3>4. How We Collect Information</h3>
+                    <p>Your data may be collected through:
+                        - Direct interactions (when you contact us, register, or use our services)
+                        - Automated technologies (such as cookies and website analytics)
+                        - Third-party sources (such as payment processors or publicly available records)</p>
+                    
+                    <h3>5. How We Use Your Information</h3>
+                    <p>We only use your personal data where permitted by law. This includes:
+                        <p>- To provide and improve our services</p>
+                        <p>- To process payments and transactions</p>
+                        <p>- To comply with legal and regulatory obligations</p>
+                        <p>- To protect our legitimate business interests</p>
+                        <p>- To communicate with you regarding updates, changes, or service-related matters</p></p>
+
+                    <h3>6. Cookies and Tracking Technologies</h3>
+                    <p>We may use cookies, web beacons, and similar technologies to enhance your browsing experience, analyze website traffic, and improve our services. You can adjust your browser settings to refuse or limit cookies, but some parts of our website may not function properly without them.</p>
+
+                    <h3>7. Data Sharing with Third Parties</h3>
+                    <p>We may share your personal information with trusted third parties, including:
+                    Service providers and business partners who support our operations (e.g., hosting, analytics, payment processing) Regulators, law enforcement, or government agencies, where required by law. We do not sell your personal data to third parties.</p>
+
+                    <h3>8. Data Security</h3>
+                    <p>We apply appropriate technical and organizational measures to safeguard your information against unauthorized access, alteration, disclosure, or destruction.</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <span class="material-symbols-outlined">arrow_back_ios</span>
+        </button>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active" data-tab="recent-food">RECENT FOOD</button>
+                    <button class="sidebar-tab" data-tab="daily-digest">DAILY DIGEST</button>
+                </div>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-page active" id="recent-food-page">
+                </div>
+                <div class="sidebar-page" id="daily-digest-page">
+                </div>
+            </div>
+        </div>
+
+        <div class="greeting-container">
+            <div class="greeting-text">
+                <span class="greeting-hi">hi, </span>
+                <span class="greeting-name">Fazryl</span>
+            </div>
+            <div class="greeting-question">what are we chomping today?</div>
+        </div>
+
+        <div class="chomping-container">
+            <div class="chomping-text">CHOMPING...</div>
+        </div>
+
+        <div class="result-container">
+            <div class="result-calories"></div>
+            <div class="result-suggestion"></div>
+        </div>
+
+        <div class="image-container">
+            <img class="monst" src="https://lh3.googleusercontent.com/d/1S-cQW23ONxoAVwM0X99qYy6o8fKqFBnj" alt="Monster">
+            
+            <div class="eyes-container" id="eyesContainer">
+                <div class="eye-wrapper" id="leftEyeWrapper">
+                    <div class="eye-socket"></div>
+                    <div class="eyeball" id="leftEye">
+                        <div class="bottom-reflection"></div>
+                        <div class="iris-container">
+                            <div class="iris intro-position" id="leftIris">
+                                <div class="pupil"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="eye-wrapper" id="rightEyeWrapper">
+                    <div class="eye-socket"></div>
+                    <div class="eyeball" id="rightEye">
+                        <div class="bottom-reflection"></div>
+                        <div class="iris-container">
+                            <div class="iris intro-position" id="rightIris">
+                                <div class="pupil"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="file" id="fileInput" class="file-input" accept="image/*">
+            <div class="mouth-hitbox disabled" id="mouthHitbox"></div>
+            <div class="mouth" id="mouth"></div>
+        </div>
+        <img src="https://lh3.googleusercontent.com/d/1ptcFk1zoquLNxU162BrOQuhQdfyr55L8" 
+     alt="" 
+     class="bottom-right-image" 
+     id="bottomRightImage">
+
+<button class="user-menu-button" id="userMenuButton">
+    <span class="material-symbols-outlined">contacts_product</span>
+</button>
+
+<div class="user-menu-dropdown" id="userMenuDropdown">
+    <div class="user-menu-username" id="userMenuUsername">Username</div>
+    <button class="user-menu-item" id="logoutMenuItem">
+        <span class="material-symbols-outlined">logout</span>
+        <span>Log Out</span>
+    </button>
+    <button class="user-menu-item" id="loginMenuItem">
+        <span class="material-symbols-outlined">login</span>
+        <span>Log In</span>
+    </button>
+    <button class="user-menu-item" id="createAccountMenuItem">
+        <span class="material-symbols-outlined">person_add</span>
+        <span>Create Account</span>
+    </button>
+</div>
+
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://txcqudancqwlijbotgha.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4Y3F1ZGFuY3F3bGlqYm90Z2hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1MDQxOTcsImV4cCI6MjA3NDA4MDE5N30.X_ro1tO6TGN4nXoAbGCP9SqQwaPm4NVMMUFZ_djPBWE';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let isNewUser = false;
+
+        // ✅ CACHE FOR TODAY'S CALORIES - NO MORE RECALCULATING!
+        let cachedCalories = 0;
+        let caloriesLastFetched = null;
+
+        // ✅ ADD THIS NEW LINE
+let realtimeSubscription = null;
+
+        function hashPassword(password) {
+            return CryptoJS.SHA256(password).toString();
+        }
+
+        async function checkProfileComplete(username) {
+            try {
+                const { data, error } = await supabase
+                    .from('user_database')
+                    .select('name, age, height, weight')
+                    .eq('user_name', username)
+                    .single();
+                
+                if (error) throw error;
+                
+                return !!(data.name && data.age && data.height && data.weight);
+            } catch (error) {
+                console.error('Error checking profile:', error);
+                return false;
+            }
+        }
+
+        async function checkAuth() {
+            const savedUsername = localStorage.getItem('chomper_username');
+            
+            if (savedUsername) {
+                const { data, error } = await supabase
+                    .from('user_database')
+                    .select('user_name, name')
+                    .eq('user_name', savedUsername)
+                    .single();
+                
+                if (data) {
+                    currentUser = savedUsername;
+                    console.log('Auto-logged in as:', currentUser);
+
+                     cachedCalories = null;
+    caloriesLastFetched = null;
+    recentFoodCache = null;
+    dailyDigestCache = null;
+
+                    return true;
+                } else {
+                    localStorage.removeItem('chomper_username');
+                }
+            }
+            
+            return false;
+        }
+
+        // ✅ ADD THIS ENTIRE NEW FUNCTION
+function setupRealtimeSubscription() {
+    if (!currentUser) {
+        console.error('❌ NO CURRENT USER - Cannot setup realtime');
+        return;
+    }
+    
+    // Unsubscribe from previous subscription if exists
+    if (realtimeSubscription) {
+        console.log('🔄 Removing old subscription');
+        supabase.removeChannel(realtimeSubscription);
+    }
+    
+    console.log('🔴 Setting up realtime subscription for:', currentUser);
+    
+    // Subscribe to changes in recent_food1 table for current user
+    realtimeSubscription = supabase
+        .channel('recent_food_changes')
+        .on(
+            'postgres_changes',
+            {
+                event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+                schema: 'public',
+                table: 'recent_food1',
+                filter: `user_name=eq.${currentUser}`
+            },
+            async (payload) => {
+                console.log('🔥🔥🔥 REALTIME UPDATE DETECTED! 🔥🔥🔥');
+                console.log('Event Type:', payload.eventType);
+                console.log('Full Payload:', payload);
+                
+                if (payload.eventType === 'INSERT') {
+                    console.log('✅ New food item added!');
+                    console.log('New item:', payload.new);
+                    
+                    // Update cached calories
+                    const newCalories = payload.new.total_calories || 0;
+                    console.log('Adding calories:', newCalories);
+                    cachedCalories += newCalories;
+                    updateTrackerDisplay();
+                    
+                    // Reload sidebar data
+                    await loadRecentFood();
+                    await loadDailyDigest();
+                    
+                } else if (payload.eventType === 'UPDATE') {
+                    console.log('🔄 Food item updated!');
+                    console.log('Updated item:', payload.new);
+                    
+                    // Recalculate calories and reload
+                    await calculateTodayCalories();
+                    updateTrackerDisplay();
+                    await loadRecentFood();
+                    await loadDailyDigest();
+                    
+                } else if (payload.eventType === 'DELETE') {
+                    console.log('🗑️ Food item deleted!');
+                    console.log('Deleted item:', payload.old);
+                    
+                    // Recalculate and reload
+                    await calculateTodayCalories();
+                    updateTrackerDisplay();
+                    await loadRecentFood();
+                    await loadDailyDigest();
+                }
+            }
+        )
+        .subscribe((status) => {
+            console.log('📡 Realtime subscription status:', status);
+            if (status === 'SUBSCRIBED') {
+                console.log('✅ Successfully subscribed to realtime updates!');
+            } else if (status === 'CHANNEL_ERROR') {
+                console.error('❌ Channel error - Realtime might not be enabled!');
+            } else if (status === 'TIMED_OUT') {
+                console.error('❌ Subscription timed out!');
+            } else {
+                console.log('Status:', status);
+            }
+        });
+    
+    console.log('Subscription object created:', realtimeSubscription);
+}
+
+       function showMainContent() {
+    document.getElementById('authPage').classList.add('hidden');
+    
+    setTimeout(() => {
+        document.getElementById('authPage').style.display = 'none';
+        document.getElementById('mainContent').classList.add('show');
+
+        // IMMEDIATE DATA LOAD
+        if (currentUser) {
+            calculateTodayCalories().then(() => {
+                updateTrackerDisplay();
+            });
+            loadRecentFood();
+            loadDailyDigest();
+            
+            // ✅ ADD THIS ONE LINE
+            setupRealtimeSubscription();
+        }
+                
+                document.body.classList.add('intro-mode');
+                
+                setTimeout(() => {
+                    img.classList.add('jumping');
+                    mouth.classList.add('jumping');
+                    leftIris.classList.add('jumping-center');
+                    rightIris.classList.add('jumping-center');
+                    leftIris.classList.remove('intro-position');
+                    rightIris.classList.remove('intro-position');
+                }, 3500);
+
+                setTimeout(() => {
+                    img.classList.remove('jumping');
+                    mouth.classList.remove('jumping');
+                    leftIris.classList.remove('jumping-center');
+                    rightIris.classList.remove('jumping-center');
+                    leftIris.classList.add('intro-position');
+                    rightIris.classList.add('intro-position');
+                }, 4899);
+            
+            }, 500);
+        }
+
+        let questionStep = 0;
+        const questionData = {
+            name: '',
+            age: '',
+            height: '',
+            weight: ''
+        };
+
+        const questions = [
+            { title: "What's your name?", placeholder: "Enter your name", field: 'name' },
+            { title: "How old are you?", placeholder: "Enter your age", field: 'age' },
+            { title: "What's your height? (cm)", placeholder: "Enter your height in cm", field: 'height' },
+            { title: "What's your weight? (kg)", placeholder: "Enter your weight in kg", field: 'weight' }
+        ];
+
+        function showQuestionBubble() {
+            document.body.classList.add('intro-mode');
+            document.getElementById('questionOverlay').classList.add('show');
+            document.getElementById('questionBubble').classList.add('show');
+            document.getElementById('mouthHitbox').classList.add('disabled');
+            
+            mouth.classList.add('question-loop');
+            
+            setTimeout(() => {
+                mouth.classList.remove('question-loop');
+            }, 3000);
+            
+            updateQuestionDisplay();
+        }
+
+        function hideQuestionBubble() {
+            document.body.classList.remove('intro-mode');
+            document.getElementById('questionOverlay').classList.remove('show');
+            document.getElementById('questionBubble').classList.remove('show');
+            document.getElementById('mouthHitbox').classList.remove('disabled');
+        }
+
+        function updateQuestionDisplay() {
+            const questionTitle = document.getElementById('questionTitle');
+            const questionInput = document.getElementById('questionInput');
+            const questionBack = document.getElementById('questionBack');
+            const questionNext = document.getElementById('questionNext');
+            
+            if (questionStep < questions.length) {
+                questionTitle.textContent = questions[questionStep].title;
+                questionInput.placeholder = questions[questionStep].placeholder;
+                questionInput.value = questionData[questions[questionStep].field] || '';
+                questionInput.style.display = 'block';
+                questionBack.style.display = questionStep > 0 ? 'block' : 'none';
+                questionNext.textContent = 'Next';
+                
+                const existingConfirmation = document.querySelector('.confirmation-data');
+                if (existingConfirmation) {
+                    existingConfirmation.remove();
+                }
+            } else {
+                questionTitle.textContent = 'Confirm Your Information';
+                questionInput.style.display = 'none';
+                questionBack.style.display = 'block';
+                questionNext.textContent = 'Done';
+                
+                const confirmationHTML = `
+                    <div class="confirmation-data">
+                        <div><strong>Name:</strong> ${questionData.name}</div>
+                        <div><strong>Age:</strong> ${questionData.age}</div>
+                        <div><strong>Height:</strong> ${questionData.height} cm</div>
+                        <div><strong>Weight:</strong> ${questionData.weight} kg</div>
+                    </div>
+                `;
+                
+                const existingConfirmation = document.querySelector('.confirmation-data');
+                if (existingConfirmation) {
+                    existingConfirmation.remove();
+                }
+                questionTitle.insertAdjacentHTML('afterend', confirmationHTML);
+            }
+        }
+
+        document.getElementById('questionNext').addEventListener('click', async () => {
+            const questionInput = document.getElementById('questionInput');
+            
+            if (questionStep < questions.length) {
+                const currentField = questions[questionStep].field;
+                const value = questionInput.value.trim();
+                
+                if (!value) {
+                    alert('Please fill in this field');
+                    return;
+                }
+                
+                questionData[currentField] = value;
+                questionStep++;
+                updateQuestionDisplay();
+            } else {
+                try {
+                    const { error } = await supabase
+                        .from('user_database')
+                        .update({
+                            name: questionData.name,
+                            age: parseInt(questionData.age),
+                            height: parseInt(questionData.height),
+                            weight: parseInt(questionData.weight)
+                        })
+                        .eq('user_name', currentUser);
+                    
+                    if (error) throw error;
+                    
+                    console.log('User data saved successfully');
+                    
+                    hideQuestionBubble();
+                    
+                    setTimeout(() => {
+                        showGreeting(questionData.name);
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('Error saving user data:', error);
+                    alert('Error saving your information. Please try again.');
+                }
+            }
+        });
+
+        document.getElementById('questionBack').addEventListener('click', () => {
+            if (questionStep > 0) {
+                questionStep--;
+                document.getElementById('questionInput').style.display = 'block';
+                const existingConfirmation = document.querySelector('.confirmation-data');
+                if (existingConfirmation) {
+                    existingConfirmation.remove();
+                }
+                updateQuestionDisplay();
+            }
+        });
+
+        async function showGreeting(userName) {
+            const greetingContainer = document.querySelector('.greeting-container');
+            const greetingHi = document.querySelector('.greeting-hi');
+            const greetingName = document.querySelector('.greeting-name');
+            const greetingQuestion = document.querySelector('.greeting-question');
+            
+            const hiText = "hi, ";
+            const nameText = userName || currentUser;
+            const questionText = "what are we chomping today?";
+            
+            greetingHi.textContent = '';
+            greetingName.textContent = '';
+            greetingQuestion.textContent = '';
+            
+            greetingContainer.classList.add('show');
+            mouth.classList.add('talking');
+            
+            function wrapLetters(element, text) {
+                const letters = [];
+                
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    const span = document.createElement('span');
+                    
+                    if (char === ' ') {
+                        span.innerHTML = '&nbsp;';
+                    } else {
+                        span.textContent = char;
+                    }
+                    
+                    span.style.setProperty('--index', i);
+                    span.style.setProperty('--total', text.length);
+                    
+                    span.style.animationDelay = `${letters.length * 0.05}s`;
+                    element.appendChild(span);
+                    letters.push(span);
+                }
+                
+                return letters;
+            }
+            
+            const hiLetters = wrapLetters(greetingHi, hiText);
+            const nameLetters = wrapLetters(greetingName, nameText);
+            
+            const greetingDelay = (hiLetters.length + nameLetters.length) * 0.05 + 0.3;
+            
+            setTimeout(() => {
+                wrapLetters(greetingQuestion, questionText);
+                
+                const questionDelay = questionText.length * 0.05 + 0.3;
+                
+                setTimeout(() => {
+                    mouth.classList.remove('talking');
+                }, questionDelay * 1000);
+                
+            }, greetingDelay * 1000);
+        }
+
+        document.getElementById('switchToLogin').addEventListener('click', () => {
+            document.getElementById('createAccountForm').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('createUsername').value = '';
+            document.getElementById('createPassword').value = '';
+            document.getElementById('createPasswordConfirm').value = '';
+            document.getElementById('createUsernameError').classList.remove('show');
+            document.getElementById('createPasswordError').classList.remove('show');
+        });
+
+        document.getElementById('switchToCreate').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('createAccountForm').classList.add('active');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').classList.remove('show');
+        });
+
+        document.getElementById('createAccountBtn').addEventListener('click', async () => {
+            const username = document.getElementById('createUsername').value.trim();
+            const password = document.getElementById('createPassword').value;
+            const passwordConfirm = document.getElementById('createPasswordConfirm').value;
+            
+            document.getElementById('createUsernameError').classList.remove('show');
+            document.getElementById('createPasswordError').classList.remove('show');
+            
+            if (!username || !password || !passwordConfirm) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                document.getElementById('createPasswordError').classList.add('show');
+                return;
+            }
+            
+            const hashedPassword = hashPassword(password);
+            
+            const { data, error } = await supabase
+                .from('user_database')
+                .select('user_name')
+                .eq('user_name', username)
+                .single();
+            
+            if (data) {
+                document.getElementById('createUsernameError').classList.add('show');
+                return;
+            }
+            
+            const { error: insertError } = await supabase
+                .from('user_database')
+                .insert({ 
+                    user_name: username,
+                    user_pass: hashedPassword 
+                });
+            
+            if (insertError) {
+                console.error('Error creating account:', insertError);
+                alert('Error creating account. Please try again.');
+                return;
+            }
+            
+            localStorage.setItem('chomper_username', username);
+            
+            currentUser = username;
+            isNewUser = true;
+
+            cachedCalories = null;
+caloriesLastFetched = null;
+recentFoodCache = null;
+dailyDigestCache = null;
+
+            console.log('Account created successfully:', currentUser);
+            
+            showMainContent();
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            document.getElementById('loginError').classList.remove('show');
+            
+            if (!username || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const hashedPassword = hashPassword(password);
+            
+            const { data, error } = await supabase
+                .from('user_database')
+                .select('user_name, user_pass, name')
+                .eq('user_name', username)
+                .single();
+            
+            if (!data || data.user_pass !== hashedPassword) {
+                document.getElementById('loginError').classList.add('show');
+                return;
+            }
+            
+            localStorage.setItem('chomper_username', username);
+            currentUser = username;
+            isNewUser = false;
+
+            cachedCalories = null;
+caloriesLastFetched = null;
+recentFoodCache = null;
+dailyDigestCache = null;
+            
+            console.log('Logged in successfully:', currentUser);
+            
+            showMainContent();
+        });
+
+        // ✅ PRELOAD DATA IMMEDIATELY AFTER AUTH - PARALLEL LOADING!
+        (async () => {
+            const isLoggedIn = await checkAuth();
+            if (isLoggedIn) {
+                isNewUser = false;
+                
+                const profileComplete = await checkProfileComplete(currentUser);
+                
+                if (profileComplete) {
+                    console.log('✅ Profile complete - preloading data NOW');
+                    
+                    // ✅ LOAD ALL DATA IN PARALLEL - NO WAITING!
+                    Promise.all([
+                        calculateTodayCalories(),
+                        loadRecentFood(),
+                        loadDailyDigest()
+                    ]).then(() => {
+                        console.log('✅ All data preloaded successfully!');
+                    });
+                } else {
+                    console.log('Profile incomplete, will show question bubble');
+                }
+                
+                showMainContent();
+            } else {
+                document.getElementById('authPage').classList.add('show');
+            }
+        })();
+
+        const JAKARTA_OFFSET_HOURS = 7;
+
+        let dailyTarget = parseInt(localStorage.getItem('dailyTarget')) || 2000;
+
+        function getTodayDateString() {
+            const now = new Date();
+            const jakartaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+            const year = jakartaTime.getFullYear();
+            const month = String(jakartaTime.getMonth() + 1).padStart(2, '0');
+            const day = String(jakartaTime.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDisplayDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 
+                          'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+            
+            const dayName = days[date.getDay()];
+            const monthName = months[date.getMonth()];
+            const dayNum = date.getDate();
+            
+            return `${dayName}, ${monthName} ${dayNum}`;
+        }
+
+        function formatSidebarDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 
+                          'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            
+            const monthName = months[date.getMonth()];
+            const day = date.getDate();
+            const year = date.getFullYear();
+            
+            return `${monthName} ${day}, ${year}`;
+        }
+
+        function updateTrackerDate() {
+            const trackerDate = document.getElementById('trackerDate');
+            const today = getTodayDateString();
+            trackerDate.textContent = formatDisplayDate(today);
+        }
+
+        function checkAndResetNewDay() {
+            const jakartaNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+            const todayString = jakartaNow.toISOString().split('T')[0];
+            
+            const lastResetDate = localStorage.getItem('lastResetDate');
+            
+            console.log('Last reset:', lastResetDate, '| Today:', todayString);
+            
+            if (lastResetDate !== todayString) {
+                console.log('🔄 NEW DAY! Resetting to 0');
+                localStorage.setItem('lastResetDate', todayString);
+                return true;
+            }
+            
+            return false;
+        }
+
+        // ✅ OPTIMIZED: CALCULATE ONCE, CACHE, UPDATE INCREMENTALLY
+        async function calculateTodayCalories() {
+            if (!currentUser) return 0;
+            
+            try {
+                const isNewDay = checkAndResetNewDay();
+                
+                if (isNewDay) {
+                    console.log('✅ Fresh new day - resetting cache to 0!');
+                    cachedCalories = 0;
+                    caloriesLastFetched = getTodayDateString();
+                    updateTrackerDisplay();
+                    return 0;
+                }
+                
+                const today = getTodayDateString();
+                
+                // ✅ If already fetched today, return cached value
+                if (caloriesLastFetched === today && cachedCalories !== null) {
+                    console.log('✅ Using cached calories:', cachedCalories);
+                    return cachedCalories;
+                }
+                
+                console.log('🔍 Fetching today\'s calories from Supabase...');
+                
+                const { data, error } = await supabase
+                    .from('recent_food1')
+                    .select('total_calories')
+                    .eq('user_name', currentUser)
+                    .gte('time', `${today}T00:00:00`)
+                    .lte('time', `${today}T23:59:59`);
+                
+                if (error) throw error;
+                
+                let totalCalories = 0;
+                
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        totalCalories += item.total_calories || 0;
+                    });
+                }
+                
+                // ✅ CACHE THE RESULT
+                cachedCalories = totalCalories;
+                caloriesLastFetched = today;
+                
+                console.log('✅ Calories calculated and cached:', totalCalories);
+                return totalCalories;
+                
+            } catch (error) {
+                console.error('Error calculating calories:', error);
+                return cachedCalories || 0; // Return cached value on error
+            }
+        }
+
+        // ✅ OPTIMIZED: UPDATE DISPLAY WITHOUT RECALCULATING
+        async function updateTrackerDisplay() {
+            const currentCalories = cachedCalories !== null ? cachedCalories : await calculateTodayCalories();
+            const targetCalories = dailyTarget;
+            const percentage = Math.min((currentCalories / targetCalories) * 100, 100);
+            
+            document.getElementById('trackerCaloriesCurrent').textContent = Math.round(currentCalories);
+            document.getElementById('trackerCaloriesTarget').textContent = targetCalories;
+            
+            const barFill = document.getElementById('trackerBarFill');
+            barFill.style.width = percentage + '%';
+        }
+
+        function checkDateChange() {
+            updateTrackerDate();
+            calculateTodayCalories(); // This will reset cache if new day
+        }
+
+        function enableTargetEdit() {
+            const targetElement = document.getElementById('trackerCaloriesTarget');
+            const currentValue = targetElement.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.style.cssText = `
+                width: 50px;
+                font-family: Roboto;
+                font-size: 14px;
+                font-weight: 700;
+                color: #028BB3;
+                border: none;
+                border-bottom: 2px solid #028BB3;
+                background: transparent;
+                text-align: center;
+                outline: none;
+            `;
+            
+            targetElement.textContent = '';
+            targetElement.appendChild(input);
+            input.focus();
+            input.select();
+            
+            const saveValue = () => {
+                const newValue = parseInt(input.value) || 2000;
+                dailyTarget = Math.max(100, Math.min(newValue, 10000));
+                localStorage.setItem('dailyTarget', dailyTarget);
+                targetElement.textContent = dailyTarget;
+                updateTrackerDisplay();
+            };
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            });
+        }
+
+        document.getElementById('trackerCaloriesTarget').addEventListener('click', enableTargetEdit);
+        document.getElementById('trackerEditIcon').addEventListener('click', enableTargetEdit);
+
+       updateTrackerDate();
+calculateTodayCalories().then(() => {
+    updateTrackerDisplay();
+});
+
+        setInterval(checkDateChange, 60000);
+
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarToggleIcon = sidebarToggle.querySelector('.material-symbols-outlined');
+        let sidebarOpen = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebarOpen = !sidebarOpen;
+            sidebar.classList.toggle('open');
+            sidebarToggle.classList.toggle('moved');
+            sidebarOverlay.classList.toggle('show');
+            sidebarToggleIcon.textContent = sidebarOpen ? 'arrow_forward_ios' : 'arrow_back_ios';
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            if (sidebarOpen) {
+                sidebarOpen = false;
+                sidebar.classList.remove('open');
+                sidebarToggle.classList.remove('moved');
+                sidebarOverlay.classList.remove('show');
+                sidebarToggleIcon.textContent = 'arrow_back_ios';
+            }
+        });
+
+        const tabs = document.querySelectorAll('.sidebar-tab');
+        const pages = document.querySelectorAll('.sidebar-page');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetPage = tab.dataset.tab;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                pages.forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(targetPage + '-page').classList.add('active');
+            });
+        });
+
+
+        async function loadRecentFood() {
+            if(!currentUser) return;
+            
+            const container = document.getElementById('recent-food-page');
+            
+            // ✅ Show loading state
+            container.innerHTML = '<div class="no-data">Loading...</div>';
+            
+            try {
+                console.log('🔍 Loading recent food from Supabase...');
+                
+                const { data, error } = await supabase
+                    .from('recent_food1')
+                    .select('*')
+                    .eq('user_name', currentUser)
+                    .order('time', { ascending: false })
+                    .limit(15);
+                
+                if (error) throw error;
+                
+                
+                container.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="no-data">No recent food data available</div>';
+                    return;
+                }
+                
+                data.forEach(item => {
+                    const foodItem = document.createElement('div');
+                    foodItem.className = 'food-item';
+                    
+                    const itemDate = item.time ? item.time.split('T')[0] : '';
+                    const formattedDate = itemDate ? formatSidebarDate(itemDate) : 'Unknown Date';
+                    
+                    const imageHTML = (item.photo && item.photo.trim() !== '') 
+                        ? `<img src="${item.photo}" alt="" class="food-item-image">` 
+                        : `<div class="food-item-image"></div>`;
+
+                    foodItem.innerHTML = `
+                        ${imageHTML}
+                        <div class="food-item-info">
+                            <div class="food-item-date">${formattedDate}</div>
+                            <div class="food-item-calories">
+                                <span class="food-item-calories-number">${Math.round(item.total_calories || 0)}</span>
+                                <span class="food-item-calories-text">CALORIES</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(foodItem);
+                });
+                
+                console.log('✅ Recent food loaded successfully!');
+                
+            } catch (error) {
+                console.error('Error loading recent food:', error);
+                document.getElementById('recent-food-page').innerHTML = 
+                    '<div class="no-data">Error loading data</div>';
+            }
+        }
+
+
+        async function loadDailyDigest() {
+            if (!currentUser) return;
+            
+            const container = document.getElementById('daily-digest-page');
+            
+            // ✅ Show loading state
+            container.innerHTML = '<div class="no-data">Loading...</div>';
+            
+            try {
+                console.log('🔍 Loading daily digest from Supabase...');
+                
+                const { data, error } = await supabase
+                    .from('recent_food1')
+                    .select('total_calories, time')
+                    .eq('user_name', currentUser)
+                    .order('time', { ascending: false });
+                
+                if (error) throw error;
+                
+                
+                container.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="no-data">No daily digest data available</div>';
+                    return;
+                }
+                
+                const dailyTotals = {};
+                
+                data.forEach(item => {
+                    if (item.time) {
+                        const itemDate = item.time.split('T')[0];
+                        
+                        if (!dailyTotals[itemDate]) {
+                            dailyTotals[itemDate] = 0;
+                        }
+                        
+                        dailyTotals[itemDate] += item.total_calories || 0;
+                    }
+                });
+                
+                const sortedDates = Object.keys(dailyTotals).sort((a, b) => {
+                    return new Date(b) - new Date(a);
+                }).slice(0, 15);
+                
+                if (sortedDates.length === 0) {
+                    container.innerHTML = '<div class="no-data">No daily digest data available</div>';
+                    return;
+                }
+                
+                // ✅ BATCH ALL UPSERT OPERATIONS
+const upsertPromises = [];
+
+for (const date of sortedDates) {
+    const digestItem = document.createElement('div');
+    digestItem.className = 'digest-item';
+    
+    const formattedDate = formatSidebarDate(date);
+    const calories = Math.round(dailyTotals[date]);
+    
+    // ✅ CHECK IF EXISTS FIRST
+    const checkExists = async () => {
+        const { data: existing } = await supabase
+            .from('daily_digest')
+            .select('id')
+            .eq('time', formattedDate)
+            .eq('user_name', currentUser)
+            .maybeSingle();
+        
+        if (existing) {
+            // UPDATE
+            return supabase
+                .from('daily_digest')
+                .update({ total: calories.toString() })
+                .eq('time', formattedDate)
+                .eq('user_name', currentUser);
+        } else {
+            // INSERT
+            return supabase
+                .from('daily_digest')
+                .insert({ 
+                    time: formattedDate, 
+                    total: calories.toString(),
+                    user_name: currentUser 
+                });
+        }
+    };
+    
+    upsertPromises.push(checkExists());
+                    
+                    digestItem.innerHTML = `
+                        <div class="digest-date">${formattedDate}</div>
+                        <div class="digest-calories">
+                            <span class="digest-calories-number">${calories}</span>
+                            <span class="digest-calories-text">CALORIES</span>
+                        </div>
+                    `;
+                    
+                    container.appendChild(digestItem);
+                }
+                
+                // ✅ EXECUTE ALL UPSERTS IN PARALLEL
+                await Promise.all(upsertPromises);
+                console.log('✅ Daily digest loaded and saved successfully!');
+                
+            } catch (error) {
+                console.error('Error loading daily digest:', error);
+                document.getElementById('daily-digest-page').innerHTML = 
+                    '<div class="no-data">Error loading data</div>';
+            }
+        }
+
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        const userMenuUsername = document.getElementById('userMenuUsername');
+        const logoutMenuItem = document.getElementById('logoutMenuItem');
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        const createAccountMenuItem = document.getElementById('createAccountMenuItem');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationTitle = document.getElementById('confirmationTitle');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+        const confirmationConfirm = document.getElementById('confirmationConfirm');
+        const confirmationCancel = document.getElementById('confirmationCancel');
+
+        let currentAction = null;
+
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('show');
+            if (currentUser) {
+                userMenuUsername.textContent = currentUser;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                userMenuDropdown.classList.remove('show');
+            }
+        });
+
+        logoutMenuItem.addEventListener('click', () => {
+            userMenuDropdown.classList.remove('show');
+            currentAction = 'logout';
+            confirmationTitle.textContent = 'Log Out';
+            confirmationMessage.textContent = 'Are you sure you want to log out?';
+            confirmationModal.classList.add('show');
+        });
+
+        loginMenuItem.addEventListener('click', () => {
+            userMenuDropdown.classList.remove('show');
+            currentAction = 'login';
+            confirmationTitle.textContent = 'Log In';
+            confirmationMessage.textContent = 'Do you want to go to the login page?';
+            confirmationModal.classList.add('show');
+        });
+
+        createAccountMenuItem.addEventListener('click', () => {
+            userMenuDropdown.classList.remove('show');
+            currentAction = 'create';
+            confirmationTitle.textContent = 'Create Account';
+            confirmationMessage.textContent = 'Do you want to create a new account?';
+            confirmationModal.classList.add('show');
+        });
+
+        confirmationConfirm.addEventListener('click', () => {
+            confirmationModal.classList.remove('show');
+            
+            if (currentAction === 'logout') {
+
+                if (realtimeSubscription) {
+            supabase.removeChannel(realtimeSubscription);
+            realtimeSubscription = null;
+        }
+                localStorage.removeItem('chomper_username');
+                currentUser = null;
+                location.reload();
+            } else if (currentAction === 'login') {
+                localStorage.removeItem('chomper_username');
+                currentUser = null;
+                introComplete = false;
+                questionStep = 0;
+                
+                document.getElementById('mainContent').classList.remove('show');
+                document.body.classList.remove('intro-mode');
+                
+                calorieTracker.classList.remove('show');
+                sidebarToggle.classList.remove('show');
+                bottomButtons.classList.remove('show');
+                document.getElementById('bottomRightImage').classList.remove('show');
+                document.querySelector('.greeting-container').classList.remove('show');
+                document.querySelector('.result-container').classList.remove('show');
+                document.querySelector('.chomping-container').classList.remove('show');
+                
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('createAccountForm').classList.remove('active');
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginError').classList.remove('show');
+                document.getElementById('authPage').style.display = 'flex';
+                
+                void document.getElementById('authPage').offsetWidth;
+                
+                setTimeout(() => {
+                    document.getElementById('authPage').classList.remove('hidden');
+                    document.getElementById('authPage').classList.add('show');
+                }, 10);
+                
+            } else if (currentAction === 'create') {
+                localStorage.removeItem('chomper_username');
+                currentUser = null;
+                introComplete = false;
+                questionStep = 0;
+                
+                document.getElementById('mainContent').classList.remove('show');
+                document.body.classList.remove('intro-mode');
+                
+                calorieTracker.classList.remove('show');
+                sidebarToggle.classList.remove('show');
+                bottomButtons.classList.remove('show');
+                document.getElementById('bottomRightImage').classList.remove('show');
+                document.querySelector('.greeting-container').classList.remove('show');
+                document.querySelector('.result-container').classList.remove('show');
+                document.querySelector('.chomping-container').classList.remove('show');
+                
+                document.getElementById('createAccountForm').classList.add('active');
+                document.getElementById('loginForm').classList.remove('active');
+                document.getElementById('createUsername').value = '';
+                document.getElementById('createPassword').value = '';
+                document.getElementById('createPasswordConfirm').value = '';
+                document.getElementById('createUsernameError').classList.remove('show');
+                document.getElementById('createPasswordError').classList.remove('show');
+                document.getElementById('authPage').style.display = 'flex';
+                
+                void document.getElementById('authPage').offsetWidth;
+                
+                setTimeout(() => {
+                    document.getElementById('authPage').classList.remove('hidden');
+                    document.getElementById('authPage').classList.add('show');
+                }, 10);
+            }    
+            currentAction = null;
+        });
+
+        confirmationCancel.addEventListener('click', () => {
+            confirmationModal.classList.remove('show');
+            currentAction = null;
+        });
+
+        confirmationModal.addEventListener('click', (e) => {
+            if (e.target === confirmationModal) {
+                confirmationModal.classList.remove('show');
+                currentAction = null;
+            }
+        });
+
+        const tutorialButton = document.getElementById('tutorialButton');
+        const tutorialModal = document.getElementById('tutorialModal');
+        const tutorialClose = document.getElementById('tutorialClose');
+        const tutorialPrev = document.getElementById('tutorialPrev');
+        const tutorialNext = document.getElementById('tutorialNext');
+        const tutorialDots = document.querySelectorAll('.tutorial-dot');
+        const tutorialImageContainer = document.getElementById('tutorialImageContainer');
+        const tutorialTextContainer = document.getElementById('tutorialTextContainer');
+
+        let currentTutorialPage = 0;
+        const totalTutorialPages = 4;
+
+        const tutorialPages = [
+            {
+                image: '',
+                title: 'Page 1 Title',
+                text: 'Add your tutorial content for page 1 here. You can easily edit this text to provide instructions and information for your users.'
+            },
+            {
+                image: '',
+                title: 'Page 2 Title',
+                text: 'Add your tutorial content for page 2 here. Explain the next step or feature to your users.'
+            },
+            {
+                image: '',
+                title: 'Page 3 Title',
+                text: 'Add your tutorial content for page 3 here. Continue guiding your users through the features.'
+            },
+            {
+                image: '',
+                title: 'Page 4 Title',
+                text: 'Add your tutorial content for page 4 here. Wrap up the tutorial with final instructions or tips.'
+            }
+        ];
+
+        function updateTutorialPage() {
+            tutorialImageContainer.innerHTML = tutorialPages[currentTutorialPage].image 
+                ? `<img src="${tutorialPages[currentTutorialPage].image}" alt="Tutorial ${currentTutorialPage + 1}">`
+                : '';
+            
+            tutorialTextContainer.innerHTML = `
+                <h2>${tutorialPages[currentTutorialPage].title}</h2>
+                <p>${tutorialPages[currentTutorialPage].text}</p>
+            `;
+            
+            tutorialDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentTutorialPage);
+            });
+            
+            tutorialPrev.disabled = currentTutorialPage === 0;
+            tutorialNext.disabled = currentTutorialPage === totalTutorialPages - 1;
+        }
+
+        tutorialButton.addEventListener('click', () => {
+            tutorialModal.classList.add('show');
+            currentTutorialPage = 0;
+            updateTutorialPage();
+        });
+
+        tutorialClose.addEventListener('click', () => {
+            tutorialModal.classList.remove('show');
+        });
+
+        tutorialPrev.addEventListener('click', () => {
+            if (currentTutorialPage > 0) {
+                currentTutorialPage--;
+                updateTutorialPage();
+            }
+        });
+
+        tutorialNext.addEventListener('click', () => {
+            if (currentTutorialPage < totalTutorialPages - 1) {
+                currentTutorialPage++;
+                updateTutorialPage();
+            }
+        });
+
+        tutorialModal.addEventListener('click', (e) => {
+            if (e.target === tutorialModal) {
+                tutorialModal.classList.remove('show');
+            }
+        });
+
+        const privacyButton = document.getElementById('privacyButton');
+        const privacyModal = document.getElementById('privacyModal');
+        const privacyClose = document.getElementById('privacyClose');
+
+        privacyButton.addEventListener('click', () => {
+            privacyModal.classList.add('show');
+        });
+
+        privacyClose.addEventListener('click', () => {
+            privacyModal.classList.remove('show');
+        });
+
+        privacyModal.addEventListener('click', (e) => {
+            if (e.target === privacyModal) {
+                privacyModal.classList.remove('show');
+            }
+        });
+
+        let lastKnownId = 0;
+
+        function typeText(element, text, delayPerLetter = 50) {
+            return new Promise((resolve) => {
+                element.textContent = '';
+                const letters = text.split('');
+                
+                letters.forEach((letter, index) => {
+                    const span = document.createElement('span');
+                    if (letter === ' ') {
+                        span.innerHTML = '&nbsp;';
+                    } else {
+                        span.textContent = letter;
+                    }
+                    span.style.animationDelay = `${index * delayPerLetter}ms`;
+                    span.style.animation = 'fadeInLetter 0.3s ease-out forwards';
+                    element.appendChild(span);
+                });
+                
+                setTimeout(() => resolve(), letters.length * delayPerLetter + 300);
+            });
+        }
+
+        function backspaceText(element, delayPerLetter = 30) {
+            return new Promise((resolve) => {
+                const spans = Array.from(element.querySelectorAll('span'));
+                const totalSpans = spans.length;
+                
+                spans.reverse().forEach((span, index) => {
+                    setTimeout(() => {
+                        span.style.animation = 'fadeOutLetter 0.2s ease-out forwards';
+                        if (index === totalSpans - 1) {
+                            setTimeout(() => resolve(), 200);
+                        }
+                    }, index * delayPerLetter);
+                });
+                
+                if (totalSpans === 0) resolve();
+            });
+        }
+
+        function addWaveAnimation(element, text) {
+            element.textContent = '';
+            const letters = text.split('');
+            
+            letters.forEach((letter, index) => {
+                const span = document.createElement('span');
+                if (letter === ' ') {
+                    span.innerHTML = '&nbsp;';
+                } else {
+                    span.textContent = letter;
+                }
+                span.style.animationDelay = `${index * 0.1}s`;
+                element.appendChild(span);
+            });
+        }
+
+        async function pollForNewRow(lastId) {
+            const { data, error } = await supabase
+                .from('recent_food1')
+                .select('*')
+                .gt('id', lastId)
+                .order('id', { ascending: false })
+                .limit(1);
+            
+            if (error) {
+                console.error('Error polling:', error);
+                return null;
+            }
+            
+            return data && data.length > 0 ? data[0] : null;
+        }
+
+        function getSuggestion(calories) {
+            if (calories >= 0 && calories < 100) {
+                return "what's next?";
+            } else if (calories >= 100 && calories < 300) {
+                return "what now?!";
+            } else if (calories >= 300 && calories < 600) {
+                return "anything else?!";
+            } else if (calories >= 600) {
+                return "got more?, give it to me!!";
+            } else {
+                return "what's next?";
+            }
+        }
+
+        const img = document.querySelector('.monst');
+const eyesContainer = document.getElementById('eyesContainer');
+const leftIris = document.getElementById('leftIris');
+const rightIris = document.getElementById('rightIris');
+const leftEye = document.getElementById('leftEye');
+const rightEye = document.getElementById('rightEye');
+const mouth = document.getElementById('mouth');
+const mouthHitbox = document.getElementById('mouthHitbox');
+const fileInput = document.getElementById('fileInput');
+const calorieTracker = document.getElementById('calorieTracker');
+const bottomButtons = document.getElementById('bottomButtons');
+
+const WEBHOOK_URL = 'https://n8n.srv1015849.hstgr.cloud/webhook/8352ae28-dd08-4439-83c2-a0d38f413367';
+
+let currentMouseX = window.innerWidth / 2;
+let currentMouseY = window.innerHeight / 2;
+let introComplete = false;
+let idleTimer = null;
+let isIdleAnimating = false;
+const IDLE_TIMEOUT = 15000; 
+
+        document.addEventListener('click', async function startInteraction(e) {
+            if (document.getElementById('authPage').style.display !== 'none') return;
+
+            if (introComplete) return;
+            
+            if (document.getElementById('questionOverlay').classList.contains('show')) return;
+            
+            if (e.target === fileInput || e.target === mouthHitbox) return;
+            if (e.target.closest('#questionBubble') || e.target.closest('.question-overlay')) return;
+
+            if (e.target.closest('#userMenuButton') || e.target.closest('#userMenuDropdown')) return;
+
+            if (e.target.closest('#confirmationModal')) return;
+
+            if (e.target.closest('#bottomRightImage')) return;
+            
+            introComplete = true;
+            mouthHitbox.classList.remove('disabled');
+            document.body.classList.remove('intro-mode');
+            document.querySelector('.title-text').classList.add('fade-out');
+
+            setTimeout(() => {
+
+                calorieTracker.classList.add('show');
+                sidebarToggle.classList.add('show');
+                bottomButtons.classList.add('show');
+                document.getElementById('bottomRightImage').classList.add('show');
+            }, 800);
+
+            // Start idle timer after intro completes
+setTimeout(() => {
+    resetIdleTimer();
+}, 1000);
+
+            setTimeout(() => {
+    // Force reload sidebar data NOW
+    loadRecentFood();
+    loadDailyDigest();
+}, 900);
+
+            const profileComplete = await checkProfileComplete(currentUser);
+            
+            if (!profileComplete) {
+                setTimeout(() => {
+                    showQuestionBubble();
+                }, 800);
+            } else {
+                setTimeout(async () => {
+                    const { data: userData } = await supabase
+                        .from('user_database')
+                        .select('name')
+                        .eq('user_name', currentUser)
+                        .single();
+                    
+                    showGreeting(userData?.name || currentUser);
+                    
+                    // ✅ RELOAD DATA AFTER INTRO - BUT IT'S CACHED SO IT'S INSTANT!
+                    loadRecentFood();
+                    loadDailyDigest();
+                }, 800);
+            }
+            
+            leftIris.classList.remove('intro-position');
+            rightIris.classList.remove('intro-position');
+
+            leftIris.style.transform = `translate(0px, 0px) scaleY(1.54)`;
+            rightIris.style.transform = `translate(0px, 0px) scaleY(1.54)`;
+            
+            document.removeEventListener('click', startInteraction);
+        }, true);
+
+        document.addEventListener('mousemove', (e) => {
+    if (introComplete && !document.getElementById('questionOverlay').classList.contains('show')) {
+        currentMouseX = e.clientX;
+        currentMouseY = e.clientY;
+        
+        // Unlock eyes from center position if they were locked
+        if (leftIris.style.transform && !isIdleAnimating) {
+            leftIris.style.transform = '';
+            rightIris.style.transform = '';
+        }
+        
+        requestAnimationFrame(updateEyes);
+        resetIdleTimer(); // Reset idle timer on mouse move
+    }
+});
+
+        function updateEyes() {
+            moveIris(leftEye, leftIris, currentMouseX, currentMouseY);
+            moveIris(rightEye, rightIris, currentMouseX, currentMouseY);
+        }
+
+        function startIdleAnimation() {
+    if (!introComplete || isIdleAnimating) return;
+    
+    console.log('🌙 Starting idle animation...');
+    isIdleAnimating = true;
+    
+    // Get current positions of both irises
+    const leftPos = getCurrentIrisPosition(leftIris);
+    const rightPos = getCurrentIrisPosition(rightIris);
+    
+    console.log('Current iris positions - Left:', leftPos, 'Right:', rightPos);
+    
+    // Set CSS variables for starting positions
+    leftIris.style.setProperty('--start-x', `${leftPos.x}px`);
+    leftIris.style.setProperty('--start-y', `${leftPos.y}px`);
+    rightIris.style.setProperty('--start-x', `${rightPos.x}px`);
+    rightIris.style.setProperty('--start-y', `${rightPos.y}px`);
+    
+    // Add idle classes
+    eyesContainer.classList.add('idle-look');
+    mouth.classList.add('idle-look');
+    leftIris.classList.add('idle-look');
+    rightIris.classList.add('idle-look');
+    
+   // Remove after animation completes (4.5 seconds)
+setTimeout(() => {
+    eyesContainer.classList.remove('idle-look');
+    mouth.classList.remove('idle-look');
+    leftIris.classList.remove('idle-look');
+    rightIris.classList.remove('idle-look');
+    
+    // Clear CSS variables
+    leftIris.style.removeProperty('--start-x');
+    leftIris.style.removeProperty('--start-y');
+    rightIris.style.removeProperty('--start-x');
+    rightIris.style.removeProperty('--start-y');
+    
+    // Set irises to center position and STAY there
+    leftIris.style.transform = 'translate(0px, 0px) scaleY(1.54)';
+    rightIris.style.transform = 'translate(0px, 0px) scaleY(1.54)';
+    
+    isIdleAnimating = false;
+    console.log('✅ Idle animation complete - eyes locked at center');
+    
+    // Restart idle timer
+    resetIdleTimer();
+}, 4500);
+}
+
+function getCurrentIrisPosition(iris) {
+    const transform = window.getComputedStyle(iris).transform;
+    
+    if (transform === 'none') {
+        return { x: 0, y: 0 };
+    }
+    
+    // Extract translate values from transform matrix
+    const matrix = transform.match(/matrix\(([^)]+)\)/);
+    if (matrix) {
+        const values = matrix[1].split(', ');
+        return {
+            x: parseFloat(values[4]) || 0,
+            y: parseFloat(values[5]) || 0
+        };
+    }
+    
+    return { x: 0, y: 0 };
+}
+
+function resetIdleTimer() {
+    // Clear existing timer
+    if (idleTimer) {
+        clearTimeout(idleTimer);
+    }
+    
+    // Only set timer if on main page and not animating
+    if (introComplete && !isIdleAnimating) {
+        idleTimer = setTimeout(startIdleAnimation, IDLE_TIMEOUT);
+    }
+}
+
+        function moveIris(eye, iris, mouseX, mouseY) {
+            const eyeRect = eye.getBoundingClientRect();
+            const eyeCenterX = eyeRect.left + eyeRect.width / 2;
+            const eyeCenterY = eyeRect.top + eyeRect.height / 2;
+
+            const deltaX = mouseX - eyeCenterX;
+            const deltaY = mouseY - eyeCenterY;
+            
+            const angle = Math.atan2(deltaY, deltaX);
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            const maxMove = 14;
+            const moveAmount = Math.min(distance * 0.08, maxMove);
+
+            const x = Math.cos(angle) * moveAmount;
+            const y = Math.sin(angle) * moveAmount;
+
+            iris.style.transform = `translate(${x}px, ${y}px) scaleY(1.54)`;
+        }
+
+        function createCrumb() {
+            const crumb = document.createElement('div');
+            crumb.className = 'crumb';
+            
+            const mouthRect = mouth.getBoundingClientRect();
+            const mouthCenterX = mouthRect.left + mouthRect.width / 2;
+            const mouthCenterY = mouthRect.top + mouthRect.height / 2;
+            
+            const spreadX = (Math.random() - 0.5) * 80;
+            const spreadY = (Math.random() - 0.5) * 60;
+            
+            crumb.style.left = `${mouthCenterX + spreadX}px`;
+            crumb.style.top = `${mouthCenterY + spreadY}px`;
+            
+            const fallX = (Math.random() - 0.5) * 150;
+            const fallY = Math.random() * 100 + 80;
+            const duration = Math.random() * 0.5 + 0.8;
+            
+            crumb.style.setProperty('--fall-x', `${fallX}px`);
+            crumb.style.setProperty('--fall-y', `${fallY}px`);
+            crumb.style.setProperty('--fall-duration', `${duration}s`);
+            
+            const size = Math.random() * 6 + 4;
+            crumb.style.width = `${size}px`;
+            crumb.style.height = `${size}px`;
+            
+            document.body.appendChild(crumb);
+            
+            requestAnimationFrame(() => {
+                crumb.classList.add('animate');
+            });
+            
+            setTimeout(() => {
+                crumb.remove();
+            }, duration * 1000);
+        }
+
+        function startCrumbEffect() {
+            const crumbInterval = setInterval(() => {
+                const crumbCount = Math.floor(Math.random() * 3) + 2;
+                for (let i = 0; i < crumbCount; i++) {
+                    createCrumb();
+                }
+            }, 200);
+            
+            return crumbInterval;
+        }
+
+        mouthHitbox.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Reset idle timer on file upload
+    resetIdleTimer();
+
+            const resultContainer = document.querySelector('.result-container');
+            const resultCalories = document.querySelector('.result-calories');
+            const resultSuggestion = document.querySelector('.result-suggestion');
+            const greetingContainer = document.querySelector('.greeting-container');
+            const greetingHi = document.querySelector('.greeting-hi');
+            const greetingName = document.querySelector('.greeting-name');
+            const greetingQuestion = document.querySelector('.greeting-question');
+            
+            if (resultContainer.classList.contains('show')) {
+                await backspaceText(resultSuggestion, 20);
+                await backspaceText(resultCalories, 20);
+                resultContainer.classList.remove('show');
+            }
+            
+            if (greetingContainer.classList.contains('show')) {
+                await backspaceText(greetingQuestion, 20);
+                await backspaceText(greetingName, 20);
+                await backspaceText(greetingHi, 20);
+                greetingContainer.classList.remove('show');
+            }
+
+            try {
+                const { data: currentData, error: idError } = await supabase
+                    .from('recent_food1')
+                    .select('id')
+                    .order('id', { ascending: false })
+                    .limit(1);
+                
+                if (idError) throw idError;
+                
+                lastKnownId = currentData && currentData.length > 0 ? currentData[0].id : 0;
+                console.log('Current highest ID:', lastKnownId);
+                
+            } catch (error) {
+                console.error('Error getting current ID:', error);
+                lastKnownId = 0;
+            }
+
+            const chompingContainer = document.querySelector('.chomping-container');
+            const chompingText = document.querySelector('.chomping-text');
+            
+            chompingContainer.classList.add('show');
+            addWaveAnimation(chompingText, 'CHOMPING...');
+
+            mouth.classList.add('uploading');
+            leftEye.classList.add('uploading');
+            rightEye.classList.add('uploading');
+            
+            const crumbInterval = startCrumbEffect();
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    console.log('File uploaded successfully!');
+                    
+                    let newRow = null;
+                    let pollCount = 0;
+                    const maxPolls = 60;
+                    
+                    const pollInterval = setInterval(async () => {
+                        pollCount++;
+                        console.log(`Polling attempt ${pollCount}...`);
+                        
+                        newRow = await pollForNewRow(lastKnownId);
+                        
+                        if (newRow) {
+                            console.log('New row detected!', newRow);
+                           
+                            await supabase
+                                .from('recent_food1')
+                                .update({ user_name: currentUser })
+                                .eq('id', newRow.id);
+                            
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            const img2 = new Image();
+
+                            img2.onload = async () => {
+                                const maxWidth = 800;
+                                const maxHeight = 800;
+                                let width = img2.width;
+                                let height = img2.height;
+                                
+                                if (width > height) {
+                                    if (width > maxWidth) {
+                                        height *= maxWidth / width;
+                                        width = maxWidth;
+                                    }
+                                } else {
+                                    if (height > maxHeight) {
+                                        width *= maxHeight / height;
+                                        height = maxHeight;
+                                    }
+                                }
+                                
+                                canvas.width = width;
+                                canvas.height = height;
+                                ctx.drawImage(img2, 0, 0, width, height);
+                                
+                                canvas.toBlob(async (blob) => {
+                                    const fileName = `${newRow.id}_${Date.now()}.jpg`;
+                                    const { data: uploadData, error: uploadError } = await supabase
+                                        .storage
+                                        .from('food-images')
+                                        .upload(fileName, blob, {
+                                            cacheControl: '3600',
+                                            upsert: true,
+                                            contentType: 'image/jpeg'
+                                        });
+
+                                    if (!uploadError) {
+                                        const { data: urlData } = supabase
+                                            .storage
+                                            .from('food-images')
+                                            .getPublicUrl(fileName);
+                                        
+                                        const imageUrl = urlData.publicUrl;
+                                        
+                                        await supabase
+                                            .from('recent_food1')
+                                            .update({ photo: imageUrl })
+                                            .eq('id', newRow.id);
+                                        
+                                        console.log('✅ Image uploaded!', imageUrl);
+
+                                            // ✅ FORCE SIDEBAR RELOAD AFTER IMAGE UPLOAD
+                                            setTimeout(() => {
+                                                console.log('🔥 Image uploaded - reloading sidebar!');
+                                                loadRecentFood();
+                                                loadDailyDigest();
+                                            }, 300);
+
+                                        // ✅ CLEAR CACHES SO IT RELOADS FRESH DATA
+                                        recentFoodCache = null;
+                                        recentFoodLastLoaded = null;
+                                        dailyDigestCache = null;
+                                        dailyDigestLastLoaded = null;
+
+                                        // ✅ FORCE RELOAD NOW
+                                        loadRecentFood();
+                                        loadDailyDigest();
+                                    } else {
+                                        console.error('❌ Upload error:', uploadError);
+                                    }
+                                }, 'image/jpeg', 0.8);
+                            };
+
+                            img2.src = URL.createObjectURL(file);
+
+                            clearInterval(pollInterval);
+                            clearInterval(crumbInterval);
+                            
+                            mouth.classList.remove('uploading');
+                            
+                            img.classList.add('jello');
+                            eyesContainer.classList.add('jello');
+                            mouth.classList.add('jello');
+                            
+                            setTimeout(() => {
+                                leftEye.classList.remove('uploading');
+                                rightEye.classList.remove('uploading');
+                                img.classList.remove('jello');
+                                eyesContainer.classList.remove('jello');
+                                mouth.classList.remove('jello');
+                            }, 1200);
+                            
+                            setTimeout(async () => {
+    await backspaceText(chompingText, 20);
+    chompingContainer.classList.remove('show');
+    
+    resultContainer.classList.add('show');
+    
+    const calories = newRow.total_calories || 0;
+    const caloriesText = `${calories} <span style="font-size: 30px; font-weight: 600;">CALORIES</span>`;
+    const suggestionText = getSuggestion(calories);
+    
+    mouth.classList.add('talking');
+    
+    await typeText(resultCalories, caloriesText, 50);
+    await typeText(resultSuggestion, suggestionText, 50);
+    
+    mouth.classList.remove('talking');
+    
+    // ✅ UPDATE TRACKER FIRST
+    console.log('🔥 UPDATING TRACKER WITH NEW CALORIES:', calories);
+    cachedCalories += calories;
+    updateTrackerDisplay();
+    
+    // ✅ WAIT A BIT THEN FORCE RELOAD SIDEBAR
+    setTimeout(async () => {
+        console.log('🔥 FORCING SIDEBAR RELOAD NOW!');
+        await loadRecentFood();
+        await loadDailyDigest();
+        console.log('✅ SIDEBAR RELOADED!');
+    }, 500);
+    
+}, 1500);
+                            
+                        } else if (pollCount >= maxPolls) {
+                            console.log('Polling timeout - no new row found');
+                            clearInterval(pollInterval);
+                            clearInterval(crumbInterval);
+                            
+                            mouth.classList.remove('uploading');
+                            leftEye.classList.remove('uploading');
+                            rightEye.classList.remove('uploading');
+                            
+                            chompingText.textContent = 'Oops! Something went wrong...';
+                        }
+                        
+                    }, 2000);
+                    
+                } else {
+                    console.error('Upload failed:', response.statusText);
+                    clearInterval(crumbInterval);
+                    mouth.classList.remove('uploading');
+                    leftEye.classList.remove('uploading');
+                    rightEye.classList.remove('uploading');
+                    chompingText.textContent = 'Upload failed!';
+                }
+                
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                clearInterval(crumbInterval);
+                mouth.classList.remove('uploading');
+                leftEye.classList.remove('uploading');
+                rightEye.classList.remove('uploading');
+                chompingText.textContent = 'Error occurred!';
+            }
+
+            fileInput.value = '';
+        });
+
+        img.addEventListener('click', function(e) {
+            if (!introComplete) return;
+
+            resetIdleTimer();
+            
+            const rect = img.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            const imageWidth = rect.width;
+            const imageHeight = rect.height;
+            
+            const centerX = imageWidth / 2;
+            
+            if (clickY > imageHeight * 0.15 && clickY < imageHeight * 0.30 && Math.abs(clickX - centerX) < imageWidth * 0.30) {
+                img.classList.remove('wobble');
+                img.classList.remove('shake');
+                eyesContainer.classList.remove('wobble');
+                eyesContainer.classList.remove('shake');
+                mouth.classList.remove('wobble-mouth');
+                mouth.classList.remove('shake-mouth');
+                leftEye.classList.remove('closing');
+                rightEye.classList.remove('closing');
+                leftEye.classList.remove('angry');
+                rightEye.classList.remove('angry');
+                void img.offsetWidth;
+                img.classList.add('wobble');
+                eyesContainer.classList.add('wobble');
+                mouth.classList.add('wobble-mouth');
+                leftEye.classList.add('closing');
+                rightEye.classList.add('closing');
+                
+                setTimeout(() => {
+                    img.classList.remove('wobble');
+                    eyesContainer.classList.remove('wobble');
+                    mouth.classList.remove('wobble-mouth');
+                    leftEye.classList.remove('closing');
+                    rightEye.classList.remove('closing');
+                }, 3000);
+            }
+            else if (clickY > imageHeight * 0.60 && clickY < imageHeight * 0.85 && Math.abs(clickX - centerX) < imageWidth * 0.30) {
+                img.classList.remove('shake');
+                img.classList.remove('wobble');
+                eyesContainer.classList.remove('shake');
+                eyesContainer.classList.remove('wobble');
+                mouth.classList.remove('shake-mouth');
+                mouth.classList.remove('wobble-mouth');
+                leftEye.classList.remove('closing');
+                rightEye.classList.remove('closing');
+                leftEye.classList.remove('angry');
+                rightEye.classList.remove('angry');
+                void img.offsetWidth;
+                img.classList.add('shake');
+                eyesContainer.classList.add('shake');
+                mouth.classList.add('shake-mouth');
+                leftEye.classList.add('angry');
+                rightEye.classList.add('angry');
+                
+                setTimeout(() => {
+                    img.classList.remove('shake');
+                    eyesContainer.classList.remove('shake');
+                    mouth.classList.remove('shake-mouth');
+                    leftEye.classList.remove('angry');
+                    rightEye.classList.remove('angry');
+                }, 800);
+            }
+        });
+
+        const bottomRightImage = document.getElementById('bottomRightImage');
+
+        bottomRightImage.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.open('https://www.evensure.agency/', '_blank');
+        });
+    </script>
+</body>
+</html>
