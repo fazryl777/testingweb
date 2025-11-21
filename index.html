@@ -132,6 +132,53 @@
             color: #64B5F6;
         }
 
+        .debug-panel {
+            background: #252525;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #2a2a2a;
+            font-family: monospace;
+            font-size: 11px;
+            color: #888;
+            display: none;
+        }
+
+        .debug-panel.active {
+            display: block;
+        }
+
+        .debug-line {
+            margin: 4px 0;
+        }
+
+        .debug-label {
+            color: #666;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .debug-value {
+            color: #4CAF50;
+        }
+
+        .debug-toggle {
+            background: #252525;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .debug-toggle:hover {
+            background: #2a2a2a;
+        }
+
         .target-section {
             margin-bottom: 24px;
             padding: 20px;
@@ -270,6 +317,17 @@
             <div class="rep-status waiting" id="rep-status">👍 Show thumbs up to start</div>
         </div>
 
+        <button class="debug-toggle" id="debugToggle">Show Debug Info</button>
+
+        <div class="debug-panel" id="debugPanel">
+            <div class="debug-line"><span class="debug-label">Workout State:</span> <span class="debug-value" id="debugState">INITIALIZING</span></div>
+            <div class="debug-line"><span class="debug-label">Pose Detected:</span> <span class="debug-value" id="debugPose">NO</span></div>
+            <div class="debug-line"><span class="debug-label">Hand Detected:</span> <span class="debug-value" id="debugHand">NO</span></div>
+            <div class="debug-line"><span class="debug-label">Hand Gesture:</span> <span class="debug-value" id="debugGesture">NONE</span></div>
+            <div class="debug-line"><span class="debug-label">Movement Range:</span> <span class="debug-value" id="debugRange">0</span></div>
+            <div class="debug-line"><span class="debug-label">Frame Count:</span> <span class="debug-value" id="debugFrames">0</span></div>
+        </div>
+
         <div class="target-section">
             <div class="target-header">
                 <div class="target-label">TARGET GOAL</div>
@@ -320,6 +378,9 @@
         let countdownInterval = null;
         let gestureDetectionCooldown = 0;
         const GESTURE_COOLDOWN_FRAMES = 30;
+
+        // Debug
+        let debugMode = false;
 
         const exercises = {
             bicep: {
@@ -530,6 +591,16 @@
             const indexFolded = indexTip[1] > indexMcp[1];
             const otherFingersClosed = countClosedFingers(landmarks, true) >= 3;
 
+            if (debugMode) {
+                if (thumbExtended && thumbAboveWrist && otherFingersClosed && indexFolded) {
+                    document.getElementById('debugGesture').textContent = 'THUMBS UP';
+                } else if (countClosedFingers(landmarks) >= 5) {
+                    document.getElementById('debugGesture').textContent = 'FIST';
+                } else {
+                    document.getElementById('debugGesture').textContent = 'NONE';
+                }
+            }
+
             if (thumbExtended && thumbAboveWrist && otherFingersClosed && indexFolded) {
                 // THUMBS UP - START/RESUME
                 if (workoutState === 'WAITING_FOR_START' || workoutState === 'PAUSED') {
@@ -682,17 +753,40 @@
             }
 
             try {
+                // Update debug state
+                if (debugMode) {
+                    document.getElementById('debugState').textContent = workoutState;
+                    document.getElementById('debugFrames').textContent = frameCount;
+                    const range = allTimeMax - allTimeMin;
+                    document.getElementById('debugRange').textContent = range.toFixed(1);
+                }
+
                 // Detect hand gestures
                 const hands = await handDetector.estimateHands(video);
                 if (hands.length > 0) {
+                    if (debugMode) {
+                        document.getElementById('debugHand').textContent = 'YES';
+                    }
                     detectHandGesture(hands[0]);
+                } else {
+                    if (debugMode) {
+                        document.getElementById('debugHand').textContent = 'NO';
+                        document.getElementById('debugGesture').textContent = 'NONE';
+                    }
                 }
 
                 // Detect pose for workout counting
                 const poses = await poseDetector.estimatePoses(video);
                 if (poses.length > 0) {
+                    if (debugMode) {
+                        document.getElementById('debugPose').textContent = 'YES';
+                    }
                     const rawY = exercises[currentExercise].getY(poses[0].keypoints);
                     detectNormalExercise(rawY);
+                } else {
+                    if (debugMode) {
+                        document.getElementById('debugPose').textContent = 'NO';
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -816,6 +910,20 @@
             target = value;
             e.target.value = value;
             updateTargetDisplay();
+        });
+
+        document.getElementById('debugToggle').addEventListener('click', () => {
+            debugMode = !debugMode;
+            const panel = document.getElementById('debugPanel');
+            const button = document.getElementById('debugToggle');
+            
+            if (debugMode) {
+                panel.classList.add('active');
+                button.textContent = 'Hide Debug Info';
+            } else {
+                panel.classList.remove('active');
+                button.textContent = 'Show Debug Info';
+            }
         });
 
         init();
