@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Workout Counter with Hand Controls</title>
+    <title>AI Workout Counter - Mobile</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose"></script>
@@ -130,53 +130,6 @@
 
         .rep-status.waiting {
             color: #64B5F6;
-        }
-
-        .debug-panel {
-            background: #252525;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 24px;
-            border: 1px solid #2a2a2a;
-            font-family: monospace;
-            font-size: 11px;
-            color: #888;
-            display: none;
-        }
-
-        .debug-panel.active {
-            display: block;
-        }
-
-        .debug-line {
-            margin: 4px 0;
-        }
-
-        .debug-label {
-            color: #666;
-            display: inline-block;
-            width: 120px;
-        }
-
-        .debug-value {
-            color: #4CAF50;
-        }
-
-        .debug-toggle {
-            background: #252525;
-            border: 1px solid #2a2a2a;
-            border-radius: 6px;
-            padding: 8px 12px;
-            color: #888;
-            font-size: 11px;
-            cursor: pointer;
-            margin-bottom: 16px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .debug-toggle:hover {
-            background: #2a2a2a;
         }
 
         .target-section {
@@ -317,17 +270,6 @@
             <div class="rep-status waiting" id="rep-status">👍 Show thumbs up to start</div>
         </div>
 
-        <button class="debug-toggle" id="debugToggle">Show Debug Info</button>
-
-        <div class="debug-panel" id="debugPanel">
-            <div class="debug-line"><span class="debug-label">Workout State:</span> <span class="debug-value" id="debugState">INITIALIZING</span></div>
-            <div class="debug-line"><span class="debug-label">Pose Detected:</span> <span class="debug-value" id="debugPose">NO</span></div>
-            <div class="debug-line"><span class="debug-label">Hand Detected:</span> <span class="debug-value" id="debugHand">NO</span></div>
-            <div class="debug-line"><span class="debug-label">Hand Gesture:</span> <span class="debug-value" id="debugGesture">NONE</span></div>
-            <div class="debug-line"><span class="debug-label">Movement Range:</span> <span class="debug-value" id="debugRange">0</span></div>
-            <div class="debug-line"><span class="debug-label">Frame Count:</span> <span class="debug-value" id="debugFrames">0</span></div>
-        </div>
-
         <div class="target-section">
             <div class="target-header">
                 <div class="target-label">TARGET GOAL</div>
@@ -361,10 +303,11 @@
         let count = 0;
         let target = 10;
         let currentExercise = 'bicep';
+        let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
-        // Workout tracking state
+        // Workout tracking state - MOBILE OPTIMIZED
         let recentPositions = [];
-        let bufferSize = 8;
+        let bufferSize = isMobile ? 5 : 8; // Smaller buffer for faster response
         let allTimeMin = Infinity;
         let allTimeMax = -Infinity;
         let inUpperZone = false;
@@ -373,14 +316,11 @@
         let cooldownFrames = 0;
 
         // Hand gesture control state
-        let workoutState = 'INITIALIZING'; // INITIALIZING, WAITING_FOR_START, COUNTDOWN, ACTIVE, PAUSED
+        let workoutState = 'INITIALIZING';
         let countdownNumber = 5;
         let countdownInterval = null;
         let gestureDetectionCooldown = 0;
-        const GESTURE_COOLDOWN_FRAMES = 30;
-
-        // Debug
-        let debugMode = false;
+        const GESTURE_COOLDOWN_FRAMES = isMobile ? 20 : 30; // Shorter cooldown on mobile
 
         const exercises = {
             bicep: {
@@ -389,11 +329,11 @@
                     const left = kp[9];
                     const right = kp[10];
                     
-                    if (left.score > 0.2 && right.score > 0.2) {
+                    if (left.score > 0.15 && right.score > 0.15) {
                         return (left.y + right.y) / 2;
-                    } else if (left.score > 0.2) {
+                    } else if (left.score > 0.15) {
                         return left.y;
-                    } else if (right.score > 0.2) {
+                    } else if (right.score > 0.15) {
                         return right.y;
                     }
                     return null;
@@ -405,11 +345,11 @@
                     const leftHip = kp[11];
                     const rightHip = kp[12];
                     
-                    if (leftHip.score > 0.2 && rightHip.score > 0.2) {
+                    if (leftHip.score > 0.15 && rightHip.score > 0.15) {
                         return (leftHip.y + rightHip.y) / 2;
-                    } else if (leftHip.score > 0.2) {
+                    } else if (leftHip.score > 0.15) {
                         return leftHip.y;
-                    } else if (rightHip.score > 0.2) {
+                    } else if (rightHip.score > 0.15) {
                         return rightHip.y;
                     }
                     return null;
@@ -421,11 +361,11 @@
                     const leftShoulder = kp[5];
                     const rightShoulder = kp[6];
                     
-                    if (leftShoulder.score > 0.2 && rightShoulder.score > 0.2) {
+                    if (leftShoulder.score > 0.15 && rightShoulder.score > 0.15) {
                         return (leftShoulder.y + rightShoulder.y) / 2;
-                    } else if (leftShoulder.score > 0.2) {
+                    } else if (leftShoulder.score > 0.15) {
                         return leftShoulder.y;
-                    } else if (rightShoulder.score > 0.2) {
+                    } else if (rightShoulder.score > 0.15) {
                         return rightShoulder.y;
                     }
                     return null;
@@ -441,7 +381,7 @@
                     const rightEar = kp[4];
                     
                     const validPoints = [nose, leftEye, rightEye, leftEar, rightEar]
-                        .filter(p => p.score > 0.2);
+                        .filter(p => p.score > 0.15);
                     
                     if (validPoints.length > 0) {
                         const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
@@ -456,11 +396,11 @@
                     const left = kp[9];
                     const right = kp[10];
                     
-                    if (left.score > 0.2 && right.score > 0.2) {
+                    if (left.score > 0.15 && right.score > 0.15) {
                         return (left.y + right.y) / 2;
-                    } else if (left.score > 0.2) {
+                    } else if (left.score > 0.15) {
                         return left.y;
-                    } else if (right.score > 0.2) {
+                    } else if (right.score > 0.15) {
                         return right.y;
                     }
                     return null;
@@ -476,7 +416,7 @@
                     const rightHip = kp[12];
                     
                     const validPoints = [nose, leftShoulder, rightShoulder, leftHip, rightHip]
-                        .filter(p => p.score > 0.2);
+                        .filter(p => p.score > 0.15);
                     
                     if (validPoints.length > 0) {
                         const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
@@ -493,8 +433,8 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { 
-                        width: 640, 
-                        height: 480,
+                        width: isMobile ? 480 : 640,
+                        height: isMobile ? 640 : 480,
                         facingMode: 'user'
                     }
                 });
@@ -505,7 +445,7 @@
                     detectPoseAndHand();
                 };
             } catch (err) {
-                alert('Camera access required');
+                alert('Camera access required. Please allow camera permissions in your browser settings.');
                 console.error(err);
             }
         }
@@ -518,7 +458,7 @@
                 poseDetection.SupportedModels.MoveNet,
                 { 
                     modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
-                    minPoseScore: 0.1
+                    minPoseScore: 0.05
                 }
             );
 
@@ -527,7 +467,6 @@
             
             updateRepStatus('Position yourself in frame', 'waiting');
             
-            // Wait a bit for user to position themselves, then prompt for thumbs up
             setTimeout(() => {
                 workoutState = 'WAITING_FOR_START';
                 updateRepStatus('👍 Show thumbs up to start', 'waiting');
@@ -563,11 +502,10 @@
                 countdownInterval = null;
             }
             workoutState = 'PAUSED';
-            updateRepStatus('✊ Paused - Show 👍 to resume', 'paused');
+            updateRepStatus('✋ Paused - Show 👍 to resume', 'paused');
         }
 
         function detectHandGesture(hand) {
-            // Don't detect gestures during initialization
             if (workoutState === 'INITIALIZING') {
                 return;
             }
@@ -579,30 +517,19 @@
 
             const landmarks = hand.landmarks;
 
-            // THUMBS UP DETECTION
+            // THUMBS UP DETECTION - MORE SENSITIVE
             const thumbTip = landmarks[4];
             const thumbMcp = landmarks[1];
             const indexTip = landmarks[8];
             const indexMcp = landmarks[5];
             const wrist = landmarks[0];
 
-            const thumbExtended = thumbTip[1] < thumbMcp[1] - 20;
-            const thumbAboveWrist = thumbTip[1] < wrist[1] - 30;
-            const indexFolded = indexTip[1] > indexMcp[1];
-            const otherFingersClosed = countClosedFingers(landmarks, true) >= 3;
+            const thumbExtended = thumbTip[1] < thumbMcp[1] - (isMobile ? 15 : 20);
+            const thumbAboveWrist = thumbTip[1] < wrist[1] - (isMobile ? 20 : 30);
+            const indexFolded = indexTip[1] > indexMcp[1] - 10;
+            const otherFingersClosed = countClosedFingers(landmarks, true) >= (isMobile ? 2 : 3);
 
-            if (debugMode) {
-                if (thumbExtended && thumbAboveWrist && otherFingersClosed && indexFolded) {
-                    document.getElementById('debugGesture').textContent = 'THUMBS UP';
-                } else if (countClosedFingers(landmarks) >= 5) {
-                    document.getElementById('debugGesture').textContent = 'FIST';
-                } else {
-                    document.getElementById('debugGesture').textContent = 'NONE';
-                }
-            }
-
-            if (thumbExtended && thumbAboveWrist && otherFingersClosed && indexFolded) {
-                // THUMBS UP - START/RESUME
+            if (thumbExtended && thumbAboveWrist && indexFolded && otherFingersClosed) {
                 if (workoutState === 'WAITING_FOR_START' || workoutState === 'PAUSED') {
                     console.log('THUMBS UP - Starting countdown');
                     startCountdown();
@@ -611,17 +538,40 @@
                 return;
             }
 
-            // FIST DETECTION
-            const fingersClosed = countClosedFingers(landmarks);
-            if (fingersClosed >= 5) {
-                // FIST - PAUSE
+            // OPEN PALM DETECTION - MORE SENSITIVE
+            if (detectOpenPalm(landmarks)) {
                 if (workoutState === 'COUNTDOWN' || workoutState === 'ACTIVE') {
-                    console.log('FIST - Pausing workout');
+                    console.log('OPEN PALM - Pausing workout');
                     pauseWorkout();
                     gestureDetectionCooldown = GESTURE_COOLDOWN_FRAMES;
                 }
                 return;
             }
+        }
+
+        function detectOpenPalm(landmarks) {
+            const fingerTips = [4, 8, 12, 16, 20];
+            const fingerBases = [2, 5, 9, 13, 17];
+            
+            let extendedCount = 0;
+            
+            for (let i = 0; i < fingerTips.length; i++) {
+                const tip = landmarks[fingerTips[i]];
+                const base = landmarks[fingerBases[i]];
+                
+                const tipToBaseDistance = Math.sqrt(
+                    Math.pow(tip[0] - base[0], 2) + 
+                    Math.pow(tip[1] - base[1], 2)
+                );
+                
+                // MOBILE: More sensitive - lower threshold
+                if (tipToBaseDistance > (isMobile ? 30 : 40)) {
+                    extendedCount++;
+                }
+            }
+            
+            // MOBILE: Need at least 4 fingers extended (vs 5)
+            return extendedCount >= (isMobile ? 4 : 5);
         }
 
         function countClosedFingers(landmarks, excludeThumb = false) {
@@ -633,7 +583,7 @@
                 const tip = landmarks[fingerTips[i]];
                 const middle = landmarks[fingerMiddles[i]];
                 
-                if (tip[1] > middle[1]) {
+                if (tip[1] > middle[1] - (isMobile ? 5 : 0)) {
                     count++;
                 }
             }
@@ -652,7 +602,6 @@
         }
 
         function detectNormalExercise(rawY) {
-            // Only count reps when workout is ACTIVE
             if (workoutState !== 'ACTIVE') {
                 return;
             }
@@ -665,11 +614,19 @@
                 allTimeMax = Math.max(allTimeMax, smoothY);
                 const range = allTimeMax - allTimeMin;
                 
-                const requiredRange = currentExercise === 'situps' ? 8 : 20;
+                // MOBILE: Much more sensitive thresholds
+                const requiredRange = isMobile ? 
+                    (currentExercise === 'situps' ? 5 : 12) : 
+                    (currentExercise === 'situps' ? 8 : 20);
                 
-                if (range > requiredRange && frameCount > 10) {
-                    const upperRatio = currentExercise === 'situps' ? 0.55 : 0.4;
-                    const lowerRatio = currentExercise === 'situps' ? 0.45 : 0.6;
+                if (range > requiredRange && frameCount > (isMobile ? 5 : 10)) {
+                    // MOBILE: More generous zone ratios
+                    const upperRatio = currentExercise === 'situps' ? 
+                        (isMobile ? 0.60 : 0.55) : 
+                        (isMobile ? 0.45 : 0.4);
+                    const lowerRatio = currentExercise === 'situps' ? 
+                        (isMobile ? 0.40 : 0.45) : 
+                        (isMobile ? 0.55 : 0.6);
                     
                     const upperThreshold = allTimeMin + (range * upperRatio);
                     const lowerThreshold = allTimeMin + (range * lowerRatio);
@@ -692,7 +649,7 @@
                             count++;
                             inUpperZone = true;
                             waitingForReturn = true;
-                            cooldownFrames = 5;
+                            cooldownFrames = isMobile ? 3 : 5;
                             updateDisplay();
                             updateRepStatus('✓ REP COUNTED!', 'ready');
                             
@@ -727,7 +684,7 @@
                             count++;
                             inUpperZone = false;
                             waitingForReturn = false;
-                            cooldownFrames = 10;
+                            cooldownFrames = isMobile ? 6 : 10;
                             updateDisplay();
                             updateRepStatus('✓ REP COUNTED!', 'ready');
                             
@@ -753,40 +710,17 @@
             }
 
             try {
-                // Update debug state
-                if (debugMode) {
-                    document.getElementById('debugState').textContent = workoutState;
-                    document.getElementById('debugFrames').textContent = frameCount;
-                    const range = allTimeMax - allTimeMin;
-                    document.getElementById('debugRange').textContent = range.toFixed(1);
-                }
-
                 // Detect hand gestures
                 const hands = await handDetector.estimateHands(video);
                 if (hands.length > 0) {
-                    if (debugMode) {
-                        document.getElementById('debugHand').textContent = 'YES';
-                    }
                     detectHandGesture(hands[0]);
-                } else {
-                    if (debugMode) {
-                        document.getElementById('debugHand').textContent = 'NO';
-                        document.getElementById('debugGesture').textContent = 'NONE';
-                    }
                 }
 
                 // Detect pose for workout counting
                 const poses = await poseDetector.estimatePoses(video);
                 if (poses.length > 0) {
-                    if (debugMode) {
-                        document.getElementById('debugPose').textContent = 'YES';
-                    }
                     const rawY = exercises[currentExercise].getY(poses[0].keypoints);
                     detectNormalExercise(rawY);
-                } else {
-                    if (debugMode) {
-                        document.getElementById('debugPose').textContent = 'NO';
-                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -845,7 +779,6 @@
                 updateDisplay();
                 reset();
                 
-                // Reset to positioning state when changing exercise
                 if (countdownInterval) {
                     clearInterval(countdownInterval);
                     countdownInterval = null;
@@ -853,7 +786,6 @@
                 workoutState = 'INITIALIZING';
                 updateRepStatus('Position yourself in frame', 'waiting');
                 
-                // Wait 5 seconds for user to position themselves
                 setTimeout(() => {
                     workoutState = 'WAITING_FOR_START';
                     updateRepStatus('👍 Show thumbs up to start', 'waiting');
@@ -910,20 +842,6 @@
             target = value;
             e.target.value = value;
             updateTargetDisplay();
-        });
-
-        document.getElementById('debugToggle').addEventListener('click', () => {
-            debugMode = !debugMode;
-            const panel = document.getElementById('debugPanel');
-            const button = document.getElementById('debugToggle');
-            
-            if (debugMode) {
-                panel.classList.add('active');
-                button.textContent = 'Hide Debug Info';
-            } else {
-                panel.classList.remove('active');
-                button.textContent = 'Show Debug Info';
-            }
         });
 
         init();
