@@ -1,223 +1,824 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dahsboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workout Counter with Hand Controls</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
 
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+        .container {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid #2a2a2a;
+        }
 
-   <style>
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
 
-    body {
- margin: 0;
- padding: 0;
- box-sizing: border-box;
- color: black;
- font-family: roboto;
-}
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 40px;
+        }
 
-.material-icons-outlined {
-  vertical-align: middle;
-  line-height: 1px;
-}
+        #webcam {
+            display: none;
+        }
 
-.text-primary {
-  color: black;
-}
+        .exercise-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
 
-.grid-container {
-  display:grid;
-  grid-template-columns: 260px 1fr 1fr 1fr;
-  grid-template-rows: 0.2fr 3fr;
-  grid-template-areas: 
-    "sidebar header header header"
-    "sidebar main main main";
-  height: 100vh;
-}
+        .exercise-btn {
+            padding: 16px;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-.header {
-  grid-area: header;
-  height: 70px;
-  background-color: rgb(250, 248, 232);
-  color: black;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 30px 0 30px;
-  box-shadow: 0 6px 7px -4px rgba(0, 0, 0, 0.322);
-}
+        .exercise-btn:hover {
+            border-color: #3a3a3a;
+            color: #aaa;
+        }
 
-.menu-icon {
-  display: none;
-}
+        .exercise-btn.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
 
-#sidebar {
-  grid-area: sidebar;
-  height: 90;
-  background-color: #50392a;
-  color: white;
-  overflow-y: auto;
-  transition: all 0.5s;
-  -webkit-transition: all 0.5s;
-}
+        .counter-display {
+            text-align: center;
+            padding: 48px 0;
+            margin-bottom: 32px;
+            border-top: 1px solid #2a2a2a;
+            border-bottom: 1px solid #2a2a2a;
+        }
 
-.sidebar-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 20px 20px 20px;
-  margin-bottom: 30px;
-}
+        .counter-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 16px;
+        }
 
-.sidebar-title > span {
-  display: none;
+        .count {
+            font-size: 96px;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
 
-}
+        .rep-status {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #888;
+            min-height: 24px;
+            font-weight: 500;
+        }
 
-.sidebar-brand {
-  margin-top: 15px;
-  font-size: 20px;
-  font-weight: 700;
-}
+        .rep-status.ready {
+            color: #4CAF50;
+        }
 
-.sidebar-list {
-  padding: 0;
-  margin-top: 15px;
-  list-style-type: none;
-}
+        .rep-status.countdown {
+            color: #FFA726;
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-.sidebar-list-item {
-  padding: 20px 20px 20px 20px;
-}
+        .rep-status.paused {
+            color: #FF5252;
+        }
 
-.sidebar-list-item:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  
-}
+        .rep-status.waiting {
+            color: #64B5F6;
+        }
 
-.sidebar-responsive {
-  display: inline !important;
-  position: absolute;
-}
+        .target-section {
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #1f1f1f;
+            border-radius: 8px;
+            border: 1px solid #2a2a2a;
+        }
 
-.main-container {
-  grid-area: main;
-  background-color: ivory;
-  overflow-y: auto;
-  padding: 20px 20px;
-  color: black;
-}
+        .target-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
 
+        .target-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+        }
 
-   </style>
+        .target-display {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .target-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .target-btn {
+            padding: 8px 16px;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            background: transparent;
+            color: #888;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .target-btn:hover {
+            border-color: #3a3a3a;
+            background: #252525;
+        }
+
+        .target-input {
+            width: 70px;
+            padding: 8px;
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .target-progress {
+            height: 8px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .target-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        .target-bar.complete {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        .target-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .manual-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .manual-btn {
+            padding: 14px;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .manual-btn:hover {
+            border-color: #3a3a3a;
+            background: #1f1f1f;
+        }
+    </style>
+</head>
 <body>
-  <div class="grid-container">
-     
-    <header class="header">
-      <div class="menu-icon" onclick="openSidebar()">
-        <span class="material-symbols-outlined">menu
-        </span>
-      </div>
-      <div class="header-left">
-        <span class="material-symbols-outlined">search
-        </span>
-      </div>
-      <div class="header-right">
-        <span class="material-symbols-outlined">notifications
-        </span>
-        <span class="material-symbols-outlined">account_circle
-        </span>
-      </div>
-    </header>
+    <div class="container">
+        <video id="webcam" autoplay playsinline></video>
 
-    <aside id="sidebar">
-      <div class="sidebar-title">
-        <div class="sidebar-brand">
-          <span class="material-symbols-outlined">
-home
-</span> Home
+        <div>
+            <h1>Workout Counter</h1>
+            <p class="subtitle">Move naturally - AI counts automatically</p>
         </div>
-        <span class="material-symbols-outlined" onclick="closeSidebar()">close
-</span>
-      </div>
-      <ul class="sidebar-list"></ul>
-      <li class="sidebar-list-item" style="color: rgb(255, 226, 232); font-size: larger;">
-        <span class="material-symbols-outlined">sports_esports
-</span> Game
-      </li>
-       <li class="sidebar-list-item" style="color: rgb(255, 226, 232); font-size: larger;">
-       <span class="material-symbols-outlined">chat
-</span> Chat
-      </li>
-       <li class="sidebar-list-item" style="color: rgb(255, 226, 232); font-size: larger;">
-        <span class="material-symbols-outlined">favorite
-</span> Fill
-      </li>
-    </aside>
 
-    <main class="main-container">
-      <div class="main-title">
-        <p class="font-weight-bold">
-          <iframe 
-                  src="https://docs.google.com/forms/d/e/1FAIpQLSfNDkVcoh1_56SexBXrfsTXC0llaGlwdv1tn03q6y8f933dVg/viewform?usp=header" 
-                  width="100%" 
-                  height="600px"
-                  frameborder="0"
-                  allowfullscreen
-                ></iframe>
-        </p>
-        <p>
-         <iframe 
-                  src="https://gulper.io/" 
-                  width="70%" 
-                  height="600px"
-                  frameborder="0"
-                  allowfullscreen
-                ></iframe>
-        </p>
+        <div class="exercise-selector">
+            <button class="exercise-btn active" data-exercise="bicep">Bicep Curls</button>
+            <button class="exercise-btn" data-exercise="squats">Squats</button>
+            <button class="exercise-btn" data-exercise="pushups">Push-ups</button>
+            <button class="exercise-btn" data-exercise="situps">Sit-ups</button>
+            <button class="exercise-btn" data-exercise="hands">Hand Waves</button>
+            <button class="exercise-btn" data-exercise="jumping">Jumping</button>
+        </div>
 
-        <p>
-          <iframe 
-                  src="https://sketch.io/sketchpad/" 
-                  width="100%" 
-                  height="600px"
-                  frameborder="0"
-                  allowfullscreen
-                ></iframe>
-        </p>
+        <div class="counter-display">
+            <div class="counter-label">REPETITIONS</div>
+            <div class="count" id="count">0</div>
+            <div class="rep-status waiting" id="rep-status">👍 Show thumbs up to start</div>
+        </div>
 
-      </div>
+        <div class="target-section">
+            <div class="target-header">
+                <div class="target-label">TARGET GOAL</div>
+                <div class="target-display" id="target-display">10 reps</div>
+            </div>
+            <div class="target-controls">
+                <button class="target-btn" id="target-minus">-5</button>
+                <input type="number" class="target-input" id="target-input" value="10" min="1" max="999">
+                <button class="target-btn" id="target-plus">+5</button>
+            </div>
+            <div class="target-progress">
+                <div class="target-bar" id="target-bar"></div>
+            </div>
+            <div class="target-info">
+                <span id="progress-text">0% complete</span>
+                <span id="remaining-text">10 remaining</span>
+            </div>
+        </div>
 
-      <div class="main-cards"></div>
+        <div class="manual-controls">
+            <button class="manual-btn" id="minus">− 1</button>
+            <button class="manual-btn" id="reset">Reset</button>
+            <button class="manual-btn" id="plus">+ 1</button>
+        </div>
+    </div>
 
+    <script>
+        let poseDetector;
+        let handDetector;
+        let video;
+        let count = 0;
+        let target = 10;
+        let currentExercise = 'bicep';
+        
+        // Workout tracking state
+        let recentPositions = [];
+        let bufferSize = 8;
+        let allTimeMin = Infinity;
+        let allTimeMax = -Infinity;
+        let inUpperZone = false;
+        let waitingForReturn = false;
+        let frameCount = 0;
+        let cooldownFrames = 0;
 
-    </main>
+        // Hand gesture control state
+        let workoutState = 'INITIALIZING'; // INITIALIZING, WAITING_FOR_START, COUNTDOWN, ACTIVE, PAUSED
+        let countdownNumber = 5;
+        let countdownInterval = null;
+        let gestureDetectionCooldown = 0;
+        const GESTURE_COOLDOWN_FRAMES = 30;
 
-  </div>
+        const exercises = {
+            bicep: {
+                name: 'Bicep Curls',
+                getY: (kp) => {
+                    const left = kp[9];
+                    const right = kp[10];
+                    
+                    if (left.score > 0.2 && right.score > 0.2) {
+                        return (left.y + right.y) / 2;
+                    } else if (left.score > 0.2) {
+                        return left.y;
+                    } else if (right.score > 0.2) {
+                        return right.y;
+                    }
+                    return null;
+                }
+            },
+            squats: {
+                name: 'Squats',
+                getY: (kp) => {
+                    const leftHip = kp[11];
+                    const rightHip = kp[12];
+                    
+                    if (leftHip.score > 0.2 && rightHip.score > 0.2) {
+                        return (leftHip.y + rightHip.y) / 2;
+                    } else if (leftHip.score > 0.2) {
+                        return leftHip.y;
+                    } else if (rightHip.score > 0.2) {
+                        return rightHip.y;
+                    }
+                    return null;
+                }
+            },
+            pushups: {
+                name: 'Push-ups',
+                getY: (kp) => {
+                    const leftShoulder = kp[5];
+                    const rightShoulder = kp[6];
+                    
+                    if (leftShoulder.score > 0.2 && rightShoulder.score > 0.2) {
+                        return (leftShoulder.y + rightShoulder.y) / 2;
+                    } else if (leftShoulder.score > 0.2) {
+                        return leftShoulder.y;
+                    } else if (rightShoulder.score > 0.2) {
+                        return rightShoulder.y;
+                    }
+                    return null;
+                }
+            },
+            situps: {
+                name: 'Sit-ups',
+                getY: (kp) => {
+                    const nose = kp[0];
+                    const leftEye = kp[1];
+                    const rightEye = kp[2];
+                    const leftEar = kp[3];
+                    const rightEar = kp[4];
+                    
+                    const validPoints = [nose, leftEye, rightEye, leftEar, rightEar]
+                        .filter(p => p.score > 0.2);
+                    
+                    if (validPoints.length > 0) {
+                        const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
+                        return avgY;
+                    }
+                    return null;
+                }
+            },
+            hands: {
+                name: 'Hand Waves',
+                getY: (kp) => {
+                    const left = kp[9];
+                    const right = kp[10];
+                    
+                    if (left.score > 0.2 && right.score > 0.2) {
+                        return (left.y + right.y) / 2;
+                    } else if (left.score > 0.2) {
+                        return left.y;
+                    } else if (right.score > 0.2) {
+                        return right.y;
+                    }
+                    return null;
+                }
+            },
+            jumping: {
+                name: 'Jumping',
+                getY: (kp) => {
+                    const nose = kp[0];
+                    const leftShoulder = kp[5];
+                    const rightShoulder = kp[6];
+                    const leftHip = kp[11];
+                    const rightHip = kp[12];
+                    
+                    const validPoints = [nose, leftShoulder, rightShoulder, leftHip, rightHip]
+                        .filter(p => p.score > 0.2);
+                    
+                    if (validPoints.length > 0) {
+                        const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
+                        return avgY;
+                    }
+                    return null;
+                }
+            }
+        };
 
-  <script>
+        async function init() {
+            video = document.getElementById('webcam');
 
-      let sidebarOpen = false;
-  let sidebar = document.getElementById("sidebar");
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: 640, 
+                        height: 480,
+                        facingMode: 'user'
+                    }
+                });
+                video.srcObject = stream;
 
-  function openSidebar() {
-    if (!sidebarOpen) {
-      sidebar.classList.add("sidebar-responsive");
-      sidebarOpen = true;
-    }
-  }
+                video.onloadedmetadata = async () => {
+                    await loadDetectors();
+                    detectPoseAndHand();
+                };
+            } catch (err) {
+                alert('Camera access required');
+                console.error(err);
+            }
+        }
 
-  function closeSidebar() {
-    if (sidebarOpen) {
-      sidebar.classList.remove("sidebar-responsive");
-      sidebarOpen = false;
-    }
-  }
+        async function loadDetectors() {
+            updateRepStatus('Initializing AI models...', 'waiting');
+            
+            // Load pose detector
+            poseDetector = await poseDetection.createDetector(
+                poseDetection.SupportedModels.MoveNet,
+                { 
+                    modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+                    minPoseScore: 0.1
+                }
+            );
 
-  </script>
+            // Load hand detector
+            handDetector = await handpose.load();
+            
+            updateRepStatus('Position yourself in frame', 'waiting');
+            
+            // Wait a bit for user to position themselves, then prompt for thumbs up
+            setTimeout(() => {
+                workoutState = 'WAITING_FOR_START';
+                updateRepStatus('👍 Show thumbs up to start', 'waiting');
+            }, 2000);
+        }
+
+        function startCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            workoutState = 'COUNTDOWN';
+            countdownNumber = 5;
+            updateRepStatus(`Get ready... ${countdownNumber}`, 'countdown');
+
+            countdownInterval = setInterval(() => {
+                countdownNumber--;
+                if (countdownNumber > 0) {
+                    updateRepStatus(`Get ready... ${countdownNumber}`, 'countdown');
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    workoutState = 'ACTIVE';
+                    updateRepStatus('Start moving!', 'ready');
+                    reset();
+                }
+            }, 1000);
+        }
+
+        function pauseWorkout() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            workoutState = 'PAUSED';
+            updateRepStatus('✊ Paused - Show 👍 to resume', 'paused');
+        }
+
+        function detectHandGesture(hand) {
+            // Don't detect gestures during initialization
+            if (workoutState === 'INITIALIZING') {
+                return;
+            }
+            
+            if (gestureDetectionCooldown > 0) {
+                gestureDetectionCooldown--;
+                return;
+            }
+
+            const landmarks = hand.landmarks;
+
+            // THUMBS UP DETECTION
+            const thumbTip = landmarks[4];
+            const thumbMcp = landmarks[1];
+            const indexTip = landmarks[8];
+            const indexMcp = landmarks[5];
+            const wrist = landmarks[0];
+
+            const thumbExtended = thumbTip[1] < thumbMcp[1] - 20;
+            const thumbAboveWrist = thumbTip[1] < wrist[1] - 30;
+            const indexFolded = indexTip[1] > indexMcp[1];
+            const otherFingersClosed = countClosedFingers(landmarks, true) >= 3;
+
+            if (thumbExtended && thumbAboveWrist && otherFingersClosed && indexFolded) {
+                // THUMBS UP - START/RESUME
+                if (workoutState === 'WAITING_FOR_START' || workoutState === 'PAUSED') {
+                    console.log('THUMBS UP - Starting countdown');
+                    startCountdown();
+                    gestureDetectionCooldown = GESTURE_COOLDOWN_FRAMES;
+                }
+                return;
+            }
+
+            // FIST DETECTION
+            const fingersClosed = countClosedFingers(landmarks);
+            if (fingersClosed >= 5) {
+                // FIST - PAUSE
+                if (workoutState === 'COUNTDOWN' || workoutState === 'ACTIVE') {
+                    console.log('FIST - Pausing workout');
+                    pauseWorkout();
+                    gestureDetectionCooldown = GESTURE_COOLDOWN_FRAMES;
+                }
+                return;
+            }
+        }
+
+        function countClosedFingers(landmarks, excludeThumb = false) {
+            let count = 0;
+            const fingerTips = excludeThumb ? [8, 12, 16, 20] : [4, 8, 12, 16, 20];
+            const fingerMiddles = excludeThumb ? [6, 10, 14, 18] : [3, 6, 10, 14, 18];
+
+            for (let i = 0; i < fingerTips.length; i++) {
+                const tip = landmarks[fingerTips[i]];
+                const middle = landmarks[fingerMiddles[i]];
+                
+                if (tip[1] > middle[1]) {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        function getSmoothed(newY) {
+            recentPositions.push(newY);
+            if (recentPositions.length > bufferSize) {
+                recentPositions.shift();
+            }
+            
+            const sum = recentPositions.reduce((a, b) => a + b, 0);
+            return sum / recentPositions.length;
+        }
+
+        function detectNormalExercise(rawY) {
+            // Only count reps when workout is ACTIVE
+            if (workoutState !== 'ACTIVE') {
+                return;
+            }
+
+            if (rawY !== null) {
+                frameCount++;
+                const smoothY = getSmoothed(rawY);
+                
+                allTimeMin = Math.min(allTimeMin, smoothY);
+                allTimeMax = Math.max(allTimeMax, smoothY);
+                const range = allTimeMax - allTimeMin;
+                
+                const requiredRange = currentExercise === 'situps' ? 8 : 20;
+                
+                if (range > requiredRange && frameCount > 10) {
+                    const upperRatio = currentExercise === 'situps' ? 0.55 : 0.4;
+                    const lowerRatio = currentExercise === 'situps' ? 0.45 : 0.6;
+                    
+                    const upperThreshold = allTimeMin + (range * upperRatio);
+                    const lowerThreshold = allTimeMin + (range * lowerRatio);
+                    
+                    let currentZone;
+                    if (smoothY < upperThreshold) {
+                        currentZone = 'up';
+                    } else if (smoothY > lowerThreshold) {
+                        currentZone = 'down';
+                    } else {
+                        currentZone = 'mid';
+                    }
+                    
+                    if (cooldownFrames > 0) {
+                        cooldownFrames--;
+                    }
+                    
+                    if (currentExercise === 'situps') {
+                        if (currentZone === 'up' && !inUpperZone && cooldownFrames === 0) {
+                            count++;
+                            inUpperZone = true;
+                            waitingForReturn = true;
+                            cooldownFrames = 5;
+                            updateDisplay();
+                            updateRepStatus('✓ REP COUNTED!', 'ready');
+                            
+                            setTimeout(() => {
+                                if (workoutState === 'ACTIVE') {
+                                    if (count >= target) {
+                                        updateRepStatus('🎉 TARGET REACHED!', 'ready');
+                                    } else {
+                                        updateRepStatus('Lie back down', 'ready');
+                                    }
+                                }
+                            }, 600);
+                        }
+                        
+                        if (currentZone === 'down' && inUpperZone) {
+                            inUpperZone = false;
+                            waitingForReturn = false;
+                            if (workoutState === 'ACTIVE') {
+                                updateRepStatus('↓ Ready for next rep', 'ready');
+                            }
+                        }
+                    } else {
+                        if (currentZone === 'up' && !inUpperZone) {
+                            inUpperZone = true;
+                            waitingForReturn = true;
+                            if (workoutState === 'ACTIVE') {
+                                updateRepStatus('↑ Up position', 'ready');
+                            }
+                        }
+                        
+                        if (currentZone === 'down' && inUpperZone && waitingForReturn && cooldownFrames === 0) {
+                            count++;
+                            inUpperZone = false;
+                            waitingForReturn = false;
+                            cooldownFrames = 10;
+                            updateDisplay();
+                            updateRepStatus('✓ REP COUNTED!', 'ready');
+                            
+                            setTimeout(() => {
+                                if (workoutState === 'ACTIVE') {
+                                    if (count >= target) {
+                                        updateRepStatus('🎉 TARGET REACHED!', 'ready');
+                                    } else {
+                                        updateRepStatus('Continue moving', 'ready');
+                                    }
+                                }
+                            }, 600);
+                        }
+                    }
+                }
+            }
+        }
+
+        async function detectPoseAndHand() {
+            if (!poseDetector || !handDetector || !video.videoWidth) {
+                requestAnimationFrame(detectPoseAndHand);
+                return;
+            }
+
+            try {
+                // Detect hand gestures
+                const hands = await handDetector.estimateHands(video);
+                if (hands.length > 0) {
+                    detectHandGesture(hands[0]);
+                }
+
+                // Detect pose for workout counting
+                const poses = await poseDetector.estimatePoses(video);
+                if (poses.length > 0) {
+                    const rawY = exercises[currentExercise].getY(poses[0].keypoints);
+                    detectNormalExercise(rawY);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+            requestAnimationFrame(detectPoseAndHand);
+        }
+
+        function updateDisplay() {
+            document.getElementById('count').textContent = count;
+            updateTargetProgress();
+        }
+
+        function updateTargetProgress() {
+            const percentage = Math.min(100, (count / target) * 100);
+            const targetBar = document.getElementById('target-bar');
+            targetBar.style.width = percentage + '%';
+            
+            if (count >= target) {
+                targetBar.classList.add('complete');
+            } else {
+                targetBar.classList.remove('complete');
+            }
+            
+            document.getElementById('progress-text').textContent = `${Math.round(percentage)}% complete`;
+            const remaining = Math.max(0, target - count);
+            document.getElementById('remaining-text').textContent = `${remaining} remaining`;
+        }
+
+        function updateTargetDisplay() {
+            document.getElementById('target-display').textContent = `${target} reps`;
+            updateTargetProgress();
+        }
+
+        function updateRepStatus(text, className) {
+            document.getElementById('rep-status').textContent = text;
+            document.getElementById('rep-status').className = 'rep-status ' + className;
+        }
+
+        function reset() {
+            recentPositions = [];
+            allTimeMin = Infinity;
+            allTimeMax = -Infinity;
+            inUpperZone = false;
+            waitingForReturn = false;
+            frameCount = 0;
+            cooldownFrames = 0;
+        }
+
+        document.querySelectorAll('.exercise-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentExercise = e.target.dataset.exercise;
+                count = 0;
+                updateDisplay();
+                reset();
+                
+                // Reset to positioning state when changing exercise
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                workoutState = 'INITIALIZING';
+                updateRepStatus('Position yourself in frame', 'waiting');
+                
+                // Wait 5 seconds for user to position themselves
+                setTimeout(() => {
+                    workoutState = 'WAITING_FOR_START';
+                    updateRepStatus('👍 Show thumbs up to start', 'waiting');
+                }, 5000);
+            });
+        });
+
+        document.getElementById('plus').addEventListener('click', () => {
+            count++;
+            updateDisplay();
+        });
+
+        document.getElementById('minus').addEventListener('click', () => {
+            if (count > 0) {
+                count--;
+                updateDisplay();
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            count = 0;
+            updateDisplay();
+            reset();
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            workoutState = 'WAITING_FOR_START';
+            updateRepStatus('👍 Show thumbs up to start', 'waiting');
+        });
+
+        document.getElementById('target-plus').addEventListener('click', () => {
+            target += 5;
+            document.getElementById('target-input').value = target;
+            updateTargetDisplay();
+        });
+
+        document.getElementById('target-minus').addEventListener('click', () => {
+            if (target > 5) {
+                target -= 5;
+                document.getElementById('target-input').value = target;
+                updateTargetDisplay();
+            }
+        });
+
+        document.getElementById('target-input').addEventListener('change', (e) => {
+            let value = parseInt(e.target.value);
+            if (isNaN(value) || value < 1) {
+                value = 1;
+            }
+            if (value > 999) {
+                value = 999;
+            }
+            target = value;
+            e.target.value = value;
+            updateTargetDisplay();
+        });
+
+        init();
+    </script>
 </body>
 </html>
